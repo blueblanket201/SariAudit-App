@@ -1,0 +1,64 @@
+<html>
+<head>
+<title>Navigation.kt</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cf8e6d;}
+.s1 { color: #bcbec4;}
+.s2 { color: #bcbec4;}
+.s3 { color: #6aab73;}
+.s4 { color: #7a7e85;}
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+Navigation.kt</font>
+</center></td></tr></table>
+<pre><span class="s0">package </span><span class="s1">com</span><span class="s2">.</span><span class="s1">example</span><span class="s2">.</span><span class="s1">sariaudit</span><span class="s2">.</span><span class="s1">ui</span>
+
+<span class="s1">import androidx</span><span class="s2">.</span><span class="s1">compose</span><span class="s2">.</span><span class="s1">animation</span><span class="s2">.</span><span class="s1">EnterTransition</span>
+<span class="s1">import androidx</span><span class="s2">.</span><span class="s1">compose</span><span class="s2">.</span><span class="s1">animation</span><span class="s2">.</span><span class="s1">ExitTransition</span>
+<span class="s1">import androidx</span><span class="s2">.</span><span class="s1">compose</span><span class="s2">.</span><span class="s1">runtime</span><span class="s2">.*</span>
+<span class="s1">import androidx</span><span class="s2">.</span><span class="s1">navigation</span><span class="s2">.</span><span class="s1">compose</span><span class="s2">.</span><span class="s1">NavHost</span>
+<span class="s1">import androidx</span><span class="s2">.</span><span class="s1">navigation</span><span class="s2">.</span><span class="s1">compose</span><span class="s2">.</span><span class="s1">composable</span>
+<span class="s1">import androidx</span><span class="s2">.</span><span class="s1">navigation</span><span class="s2">.</span><span class="s1">compose</span><span class="s2">.</span><span class="s1">rememberNavController</span>
+<span class="s1">import com</span><span class="s2">.</span><span class="s1">example</span><span class="s2">.</span><span class="s1">sariaudit</span><span class="s2">.</span><span class="s1">viewmodel</span><span class="s2">.</span><span class="s1">MainViewModel</span>
+<span class="s1">import com</span><span class="s2">.</span><span class="s1">example</span><span class="s2">.</span><span class="s1">sariaudit</span><span class="s2">.</span><span class="s1">viewmodel</span><span class="s2">.</span><span class="s1">UserRole</span>
+<span class="s1">import com</span><span class="s2">.</span><span class="s1">example</span><span class="s2">.</span><span class="s1">sariaudit</span><span class="s2">.</span><span class="s1">ui</span><span class="s2">.</span><span class="s1">screens</span><span class="s2">.*</span>
+
+<span class="s1">@Composable</span>
+<span class="s0">fun </span><span class="s1">AppNavigation</span><span class="s2">(</span><span class="s1">viewModel: MainViewModel</span><span class="s2">) {</span>
+    <span class="s0">val </span><span class="s1">navController </span><span class="s2">= </span><span class="s1">rememberNavController</span><span class="s2">()</span>
+    <span class="s0">val </span><span class="s1">userRole by viewModel</span><span class="s2">.</span><span class="s1">userRole</span><span class="s2">.</span><span class="s1">collectAsState</span><span class="s2">()</span>
+
+    <span class="s1">NavHost</span><span class="s2">(</span>
+        <span class="s1">navController </span><span class="s2">= </span><span class="s1">navController</span><span class="s2">,</span>
+        <span class="s1">startDestination </span><span class="s2">= </span><span class="s3">&quot;login&quot;</span><span class="s2">,</span>
+        <span class="s4">// DISABLE ALL ANIMATIONS</span>
+        <span class="s1">enterTransition </span><span class="s2">= { </span><span class="s1">EnterTransition</span><span class="s2">.</span><span class="s1">None </span><span class="s2">},</span>
+        <span class="s1">exitTransition </span><span class="s2">= { </span><span class="s1">ExitTransition</span><span class="s2">.</span><span class="s1">None </span><span class="s2">},</span>
+        <span class="s1">popEnterTransition </span><span class="s2">= { </span><span class="s1">EnterTransition</span><span class="s2">.</span><span class="s1">None </span><span class="s2">},</span>
+        <span class="s1">popExitTransition </span><span class="s2">= { </span><span class="s1">ExitTransition</span><span class="s2">.</span><span class="s1">None </span><span class="s2">}</span>
+    <span class="s2">) {</span>
+        <span class="s1">composable</span><span class="s2">(</span><span class="s3">&quot;login&quot;</span><span class="s2">) {</span>
+            <span class="s1">LoginScreen</span><span class="s2">(</span><span class="s1">viewModel</span><span class="s2">) {</span>
+                <span class="s1">navController</span><span class="s2">.</span><span class="s1">navigate</span><span class="s2">(</span><span class="s3">&quot;dashboard&quot;</span><span class="s2">) { </span><span class="s1">popUpTo</span><span class="s2">(</span><span class="s3">&quot;login&quot;</span><span class="s2">) { </span><span class="s1">inclusive </span><span class="s2">= </span><span class="s0">true </span><span class="s2">} }</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+        <span class="s1">composable</span><span class="s2">(</span><span class="s3">&quot;dashboard&quot;</span><span class="s2">) {</span>
+            <span class="s1">DashboardScreen</span><span class="s2">(</span><span class="s1">navController</span><span class="s2">, </span><span class="s1">viewModel</span><span class="s2">)</span>
+        <span class="s2">}</span>
+        <span class="s1">composable</span><span class="s2">(</span><span class="s3">&quot;inventory&quot;</span><span class="s2">) { </span><span class="s1">InventoryScreen</span><span class="s2">(</span><span class="s1">navController</span><span class="s2">, </span><span class="s1">viewModel</span><span class="s2">) }</span>
+        <span class="s1">composable</span><span class="s2">(</span><span class="s3">&quot;quicksale&quot;</span><span class="s2">) { </span><span class="s1">QuickSaleScreen</span><span class="s2">(</span><span class="s1">navController</span><span class="s2">, </span><span class="s1">viewModel</span><span class="s2">) }</span>
+        <span class="s1">composable</span><span class="s2">(</span><span class="s3">&quot;utang&quot;</span><span class="s2">) { </span><span class="s1">UtangScreen</span><span class="s2">(</span><span class="s1">navController</span><span class="s2">, </span><span class="s1">viewModel</span><span class="s2">) }</span>
+        <span class="s1">composable</span><span class="s2">(</span><span class="s3">&quot;analytics&quot;</span><span class="s2">) {</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">userRole </span><span class="s2">== </span><span class="s1">UserRole</span><span class="s2">.</span><span class="s1">ADMIN</span><span class="s2">) </span><span class="s1">AnalyticsScreen</span><span class="s2">(</span><span class="s1">navController</span><span class="s2">, </span><span class="s1">viewModel</span><span class="s2">)</span>
+            <span class="s0">else </span><span class="s1">DashboardScreen</span><span class="s2">(</span><span class="s1">navController</span><span class="s2">, </span><span class="s1">viewModel</span><span class="s2">) </span><span class="s4">// Fallback</span>
+        <span class="s2">}</span>
+        <span class="s1">composable</span><span class="s2">(</span><span class="s3">&quot;about&quot;</span><span class="s2">) { </span><span class="s1">AboutScreen</span><span class="s2">(</span><span class="s1">navController</span><span class="s2">) }</span>
+    <span class="s2">}</span>
+<span class="s2">}</span></pre>
+</body>
+</html>

@@ -1,0 +1,241 @@
+<html>
+<head>
+<title>UtangDao_Impl.java</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cf8e6d;}
+.s1 { color: #bcbec4;}
+.s2 { color: #bcbec4;}
+.s3 { color: #6aab73;}
+.s4 { color: #2aacb8;}
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+UtangDao_Impl.java</font>
+</center></td></tr></table>
+<pre><span class="s0">package </span><span class="s1">com</span><span class="s2">.</span><span class="s1">example</span><span class="s2">.</span><span class="s1">sariaudit</span><span class="s2">.</span><span class="s1">data</span><span class="s2">;</span>
+
+<span class="s0">import </span><span class="s1">android</span><span class="s2">.</span><span class="s1">database</span><span class="s2">.</span><span class="s1">Cursor</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">androidx</span><span class="s2">.</span><span class="s1">annotation</span><span class="s2">.</span><span class="s1">NonNull</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">androidx</span><span class="s2">.</span><span class="s1">room</span><span class="s2">.</span><span class="s1">CoroutinesRoom</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">androidx</span><span class="s2">.</span><span class="s1">room</span><span class="s2">.</span><span class="s1">EntityDeletionOrUpdateAdapter</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">androidx</span><span class="s2">.</span><span class="s1">room</span><span class="s2">.</span><span class="s1">EntityInsertionAdapter</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">androidx</span><span class="s2">.</span><span class="s1">room</span><span class="s2">.</span><span class="s1">RoomDatabase</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">androidx</span><span class="s2">.</span><span class="s1">room</span><span class="s2">.</span><span class="s1">RoomSQLiteQuery</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">androidx</span><span class="s2">.</span><span class="s1">room</span><span class="s2">.</span><span class="s1">util</span><span class="s2">.</span><span class="s1">CursorUtil</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">androidx</span><span class="s2">.</span><span class="s1">room</span><span class="s2">.</span><span class="s1">util</span><span class="s2">.</span><span class="s1">DBUtil</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">androidx</span><span class="s2">.</span><span class="s1">sqlite</span><span class="s2">.</span><span class="s1">db</span><span class="s2">.</span><span class="s1">SupportSQLiteStatement</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">lang</span><span class="s2">.</span><span class="s1">Class</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">lang</span><span class="s2">.</span><span class="s1">Exception</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">lang</span><span class="s2">.</span><span class="s1">Long</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">lang</span><span class="s2">.</span><span class="s1">Object</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">lang</span><span class="s2">.</span><span class="s1">Override</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">lang</span><span class="s2">.</span><span class="s1">String</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">lang</span><span class="s2">.</span><span class="s1">SuppressWarnings</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">util</span><span class="s2">.</span><span class="s1">ArrayList</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">util</span><span class="s2">.</span><span class="s1">Collections</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">util</span><span class="s2">.</span><span class="s1">List</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">util</span><span class="s2">.</span><span class="s1">concurrent</span><span class="s2">.</span><span class="s1">Callable</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">javax</span><span class="s2">.</span><span class="s1">annotation</span><span class="s2">.</span><span class="s1">processing</span><span class="s2">.</span><span class="s1">Generated</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">kotlin</span><span class="s2">.</span><span class="s1">Unit</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">kotlin</span><span class="s2">.</span><span class="s1">coroutines</span><span class="s2">.</span><span class="s1">Continuation</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">kotlinx</span><span class="s2">.</span><span class="s1">coroutines</span><span class="s2">.</span><span class="s1">flow</span><span class="s2">.</span><span class="s1">Flow</span><span class="s2">;</span>
+
+<span class="s1">@Generated</span><span class="s2">(</span><span class="s3">&quot;androidx.room.RoomProcessor&quot;</span><span class="s2">)</span>
+<span class="s1">@SuppressWarnings</span><span class="s2">({</span><span class="s3">&quot;unchecked&quot;</span><span class="s2">, </span><span class="s3">&quot;deprecation&quot;</span><span class="s2">})</span>
+<span class="s0">public final class </span><span class="s1">UtangDao_Impl </span><span class="s0">implements </span><span class="s1">UtangDao </span><span class="s2">{</span>
+  <span class="s0">private final </span><span class="s1">RoomDatabase __db</span><span class="s2">;</span>
+
+  <span class="s0">private final </span><span class="s1">EntityInsertionAdapter</span><span class="s2">&lt;</span><span class="s1">Utang</span><span class="s2">&gt; </span><span class="s1">__insertionAdapterOfUtang</span><span class="s2">;</span>
+
+  <span class="s0">private final </span><span class="s1">EntityDeletionOrUpdateAdapter</span><span class="s2">&lt;</span><span class="s1">Utang</span><span class="s2">&gt; </span><span class="s1">__deletionAdapterOfUtang</span><span class="s2">;</span>
+
+  <span class="s0">private final </span><span class="s1">EntityDeletionOrUpdateAdapter</span><span class="s2">&lt;</span><span class="s1">Utang</span><span class="s2">&gt; </span><span class="s1">__updateAdapterOfUtang</span><span class="s2">;</span>
+
+  <span class="s0">public </span><span class="s1">UtangDao_Impl</span><span class="s2">(</span><span class="s1">@NonNull </span><span class="s0">final </span><span class="s1">RoomDatabase __db</span><span class="s2">) {</span>
+    <span class="s0">this</span><span class="s2">.</span><span class="s1">__db </span><span class="s2">= </span><span class="s1">__db</span><span class="s2">;</span>
+    <span class="s0">this</span><span class="s2">.</span><span class="s1">__insertionAdapterOfUtang </span><span class="s2">= </span><span class="s0">new </span><span class="s1">EntityInsertionAdapter</span><span class="s2">&lt;</span><span class="s1">Utang</span><span class="s2">&gt;(</span><span class="s1">__db</span><span class="s2">) {</span>
+      <span class="s1">@Override</span>
+      <span class="s1">@NonNull</span>
+      <span class="s0">protected </span><span class="s1">String createQuery</span><span class="s2">() {</span>
+        <span class="s0">return </span><span class="s3">&quot;INSERT OR ABORT INTO `utang` (`id`,`customerName`,`amount`,`dateCreated`,`isPaid`,`datePaid`,`notes`) VALUES (nullif(?, 0),?,?,?,?,?,?)&quot;</span><span class="s2">;</span>
+      <span class="s2">}</span>
+
+      <span class="s1">@Override</span>
+      <span class="s0">protected void </span><span class="s1">bind</span><span class="s2">(</span><span class="s1">@NonNull </span><span class="s0">final </span><span class="s1">SupportSQLiteStatement statement</span><span class="s2">,</span>
+          <span class="s1">@NonNull </span><span class="s0">final </span><span class="s1">Utang entity</span><span class="s2">) {</span>
+        <span class="s1">statement</span><span class="s2">.</span><span class="s1">bindLong</span><span class="s2">(</span><span class="s4">1</span><span class="s2">, </span><span class="s1">entity</span><span class="s2">.</span><span class="s1">getId</span><span class="s2">());</span>
+        <span class="s1">statement</span><span class="s2">.</span><span class="s1">bindString</span><span class="s2">(</span><span class="s4">2</span><span class="s2">, </span><span class="s1">entity</span><span class="s2">.</span><span class="s1">getCustomerName</span><span class="s2">());</span>
+        <span class="s1">statement</span><span class="s2">.</span><span class="s1">bindDouble</span><span class="s2">(</span><span class="s4">3</span><span class="s2">, </span><span class="s1">entity</span><span class="s2">.</span><span class="s1">getAmount</span><span class="s2">());</span>
+        <span class="s1">statement</span><span class="s2">.</span><span class="s1">bindLong</span><span class="s2">(</span><span class="s4">4</span><span class="s2">, </span><span class="s1">entity</span><span class="s2">.</span><span class="s1">getDateCreated</span><span class="s2">());</span>
+        <span class="s0">final int </span><span class="s1">_tmp </span><span class="s2">= </span><span class="s1">entity</span><span class="s2">.</span><span class="s1">isPaid</span><span class="s2">() ? </span><span class="s4">1 </span><span class="s2">: </span><span class="s4">0</span><span class="s2">;</span>
+        <span class="s1">statement</span><span class="s2">.</span><span class="s1">bindLong</span><span class="s2">(</span><span class="s4">5</span><span class="s2">, </span><span class="s1">_tmp</span><span class="s2">);</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">entity</span><span class="s2">.</span><span class="s1">getDatePaid</span><span class="s2">() == </span><span class="s0">null</span><span class="s2">) {</span>
+          <span class="s1">statement</span><span class="s2">.</span><span class="s1">bindNull</span><span class="s2">(</span><span class="s4">6</span><span class="s2">);</span>
+        <span class="s2">} </span><span class="s0">else </span><span class="s2">{</span>
+          <span class="s1">statement</span><span class="s2">.</span><span class="s1">bindLong</span><span class="s2">(</span><span class="s4">6</span><span class="s2">, </span><span class="s1">entity</span><span class="s2">.</span><span class="s1">getDatePaid</span><span class="s2">());</span>
+        <span class="s2">}</span>
+        <span class="s1">statement</span><span class="s2">.</span><span class="s1">bindString</span><span class="s2">(</span><span class="s4">7</span><span class="s2">, </span><span class="s1">entity</span><span class="s2">.</span><span class="s1">getNotes</span><span class="s2">());</span>
+      <span class="s2">}</span>
+    <span class="s2">};</span>
+    <span class="s0">this</span><span class="s2">.</span><span class="s1">__deletionAdapterOfUtang </span><span class="s2">= </span><span class="s0">new </span><span class="s1">EntityDeletionOrUpdateAdapter</span><span class="s2">&lt;</span><span class="s1">Utang</span><span class="s2">&gt;(</span><span class="s1">__db</span><span class="s2">) {</span>
+      <span class="s1">@Override</span>
+      <span class="s1">@NonNull</span>
+      <span class="s0">protected </span><span class="s1">String createQuery</span><span class="s2">() {</span>
+        <span class="s0">return </span><span class="s3">&quot;DELETE FROM `utang` WHERE `id` = ?&quot;</span><span class="s2">;</span>
+      <span class="s2">}</span>
+
+      <span class="s1">@Override</span>
+      <span class="s0">protected void </span><span class="s1">bind</span><span class="s2">(</span><span class="s1">@NonNull </span><span class="s0">final </span><span class="s1">SupportSQLiteStatement statement</span><span class="s2">,</span>
+          <span class="s1">@NonNull </span><span class="s0">final </span><span class="s1">Utang entity</span><span class="s2">) {</span>
+        <span class="s1">statement</span><span class="s2">.</span><span class="s1">bindLong</span><span class="s2">(</span><span class="s4">1</span><span class="s2">, </span><span class="s1">entity</span><span class="s2">.</span><span class="s1">getId</span><span class="s2">());</span>
+      <span class="s2">}</span>
+    <span class="s2">};</span>
+    <span class="s0">this</span><span class="s2">.</span><span class="s1">__updateAdapterOfUtang </span><span class="s2">= </span><span class="s0">new </span><span class="s1">EntityDeletionOrUpdateAdapter</span><span class="s2">&lt;</span><span class="s1">Utang</span><span class="s2">&gt;(</span><span class="s1">__db</span><span class="s2">) {</span>
+      <span class="s1">@Override</span>
+      <span class="s1">@NonNull</span>
+      <span class="s0">protected </span><span class="s1">String createQuery</span><span class="s2">() {</span>
+        <span class="s0">return </span><span class="s3">&quot;UPDATE OR ABORT `utang` SET `id` = ?,`customerName` = ?,`amount` = ?,`dateCreated` = ?,`isPaid` = ?,`datePaid` = ?,`notes` = ? WHERE `id` = ?&quot;</span><span class="s2">;</span>
+      <span class="s2">}</span>
+
+      <span class="s1">@Override</span>
+      <span class="s0">protected void </span><span class="s1">bind</span><span class="s2">(</span><span class="s1">@NonNull </span><span class="s0">final </span><span class="s1">SupportSQLiteStatement statement</span><span class="s2">,</span>
+          <span class="s1">@NonNull </span><span class="s0">final </span><span class="s1">Utang entity</span><span class="s2">) {</span>
+        <span class="s1">statement</span><span class="s2">.</span><span class="s1">bindLong</span><span class="s2">(</span><span class="s4">1</span><span class="s2">, </span><span class="s1">entity</span><span class="s2">.</span><span class="s1">getId</span><span class="s2">());</span>
+        <span class="s1">statement</span><span class="s2">.</span><span class="s1">bindString</span><span class="s2">(</span><span class="s4">2</span><span class="s2">, </span><span class="s1">entity</span><span class="s2">.</span><span class="s1">getCustomerName</span><span class="s2">());</span>
+        <span class="s1">statement</span><span class="s2">.</span><span class="s1">bindDouble</span><span class="s2">(</span><span class="s4">3</span><span class="s2">, </span><span class="s1">entity</span><span class="s2">.</span><span class="s1">getAmount</span><span class="s2">());</span>
+        <span class="s1">statement</span><span class="s2">.</span><span class="s1">bindLong</span><span class="s2">(</span><span class="s4">4</span><span class="s2">, </span><span class="s1">entity</span><span class="s2">.</span><span class="s1">getDateCreated</span><span class="s2">());</span>
+        <span class="s0">final int </span><span class="s1">_tmp </span><span class="s2">= </span><span class="s1">entity</span><span class="s2">.</span><span class="s1">isPaid</span><span class="s2">() ? </span><span class="s4">1 </span><span class="s2">: </span><span class="s4">0</span><span class="s2">;</span>
+        <span class="s1">statement</span><span class="s2">.</span><span class="s1">bindLong</span><span class="s2">(</span><span class="s4">5</span><span class="s2">, </span><span class="s1">_tmp</span><span class="s2">);</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">entity</span><span class="s2">.</span><span class="s1">getDatePaid</span><span class="s2">() == </span><span class="s0">null</span><span class="s2">) {</span>
+          <span class="s1">statement</span><span class="s2">.</span><span class="s1">bindNull</span><span class="s2">(</span><span class="s4">6</span><span class="s2">);</span>
+        <span class="s2">} </span><span class="s0">else </span><span class="s2">{</span>
+          <span class="s1">statement</span><span class="s2">.</span><span class="s1">bindLong</span><span class="s2">(</span><span class="s4">6</span><span class="s2">, </span><span class="s1">entity</span><span class="s2">.</span><span class="s1">getDatePaid</span><span class="s2">());</span>
+        <span class="s2">}</span>
+        <span class="s1">statement</span><span class="s2">.</span><span class="s1">bindString</span><span class="s2">(</span><span class="s4">7</span><span class="s2">, </span><span class="s1">entity</span><span class="s2">.</span><span class="s1">getNotes</span><span class="s2">());</span>
+        <span class="s1">statement</span><span class="s2">.</span><span class="s1">bindLong</span><span class="s2">(</span><span class="s4">8</span><span class="s2">, </span><span class="s1">entity</span><span class="s2">.</span><span class="s1">getId</span><span class="s2">());</span>
+      <span class="s2">}</span>
+    <span class="s2">};</span>
+  <span class="s2">}</span>
+
+  <span class="s1">@Override</span>
+  <span class="s0">public </span><span class="s1">Object insertUtang</span><span class="s2">(</span><span class="s0">final </span><span class="s1">Utang utang</span><span class="s2">, </span><span class="s0">final </span><span class="s1">Continuation</span><span class="s2">&lt;? </span><span class="s0">super </span><span class="s1">Long</span><span class="s2">&gt; </span><span class="s1">$completion</span><span class="s2">) {</span>
+    <span class="s0">return </span><span class="s1">CoroutinesRoom</span><span class="s2">.</span><span class="s1">execute</span><span class="s2">(</span><span class="s1">__db</span><span class="s2">, </span><span class="s0">true</span><span class="s2">, </span><span class="s0">new </span><span class="s1">Callable</span><span class="s2">&lt;</span><span class="s1">Long</span><span class="s2">&gt;() {</span>
+      <span class="s1">@Override</span>
+      <span class="s1">@NonNull</span>
+      <span class="s0">public </span><span class="s1">Long call</span><span class="s2">() </span><span class="s0">throws </span><span class="s1">Exception </span><span class="s2">{</span>
+        <span class="s1">__db</span><span class="s2">.</span><span class="s1">beginTransaction</span><span class="s2">();</span>
+        <span class="s0">try </span><span class="s2">{</span>
+          <span class="s0">final </span><span class="s1">Long _result </span><span class="s2">= </span><span class="s1">__insertionAdapterOfUtang</span><span class="s2">.</span><span class="s1">insertAndReturnId</span><span class="s2">(</span><span class="s1">utang</span><span class="s2">);</span>
+          <span class="s1">__db</span><span class="s2">.</span><span class="s1">setTransactionSuccessful</span><span class="s2">();</span>
+          <span class="s0">return </span><span class="s1">_result</span><span class="s2">;</span>
+        <span class="s2">} </span><span class="s0">finally </span><span class="s2">{</span>
+          <span class="s1">__db</span><span class="s2">.</span><span class="s1">endTransaction</span><span class="s2">();</span>
+        <span class="s2">}</span>
+      <span class="s2">}</span>
+    <span class="s2">}, </span><span class="s1">$completion</span><span class="s2">);</span>
+  <span class="s2">}</span>
+
+  <span class="s1">@Override</span>
+  <span class="s0">public </span><span class="s1">Object deleteUtang</span><span class="s2">(</span><span class="s0">final </span><span class="s1">Utang utang</span><span class="s2">, </span><span class="s0">final </span><span class="s1">Continuation</span><span class="s2">&lt;? </span><span class="s0">super </span><span class="s1">Unit</span><span class="s2">&gt; </span><span class="s1">$completion</span><span class="s2">) {</span>
+    <span class="s0">return </span><span class="s1">CoroutinesRoom</span><span class="s2">.</span><span class="s1">execute</span><span class="s2">(</span><span class="s1">__db</span><span class="s2">, </span><span class="s0">true</span><span class="s2">, </span><span class="s0">new </span><span class="s1">Callable</span><span class="s2">&lt;</span><span class="s1">Unit</span><span class="s2">&gt;() {</span>
+      <span class="s1">@Override</span>
+      <span class="s1">@NonNull</span>
+      <span class="s0">public </span><span class="s1">Unit call</span><span class="s2">() </span><span class="s0">throws </span><span class="s1">Exception </span><span class="s2">{</span>
+        <span class="s1">__db</span><span class="s2">.</span><span class="s1">beginTransaction</span><span class="s2">();</span>
+        <span class="s0">try </span><span class="s2">{</span>
+          <span class="s1">__deletionAdapterOfUtang</span><span class="s2">.</span><span class="s1">handle</span><span class="s2">(</span><span class="s1">utang</span><span class="s2">);</span>
+          <span class="s1">__db</span><span class="s2">.</span><span class="s1">setTransactionSuccessful</span><span class="s2">();</span>
+          <span class="s0">return </span><span class="s1">Unit</span><span class="s2">.</span><span class="s1">INSTANCE</span><span class="s2">;</span>
+        <span class="s2">} </span><span class="s0">finally </span><span class="s2">{</span>
+          <span class="s1">__db</span><span class="s2">.</span><span class="s1">endTransaction</span><span class="s2">();</span>
+        <span class="s2">}</span>
+      <span class="s2">}</span>
+    <span class="s2">}, </span><span class="s1">$completion</span><span class="s2">);</span>
+  <span class="s2">}</span>
+
+  <span class="s1">@Override</span>
+  <span class="s0">public </span><span class="s1">Object updateUtang</span><span class="s2">(</span><span class="s0">final </span><span class="s1">Utang utang</span><span class="s2">, </span><span class="s0">final </span><span class="s1">Continuation</span><span class="s2">&lt;? </span><span class="s0">super </span><span class="s1">Unit</span><span class="s2">&gt; </span><span class="s1">$completion</span><span class="s2">) {</span>
+    <span class="s0">return </span><span class="s1">CoroutinesRoom</span><span class="s2">.</span><span class="s1">execute</span><span class="s2">(</span><span class="s1">__db</span><span class="s2">, </span><span class="s0">true</span><span class="s2">, </span><span class="s0">new </span><span class="s1">Callable</span><span class="s2">&lt;</span><span class="s1">Unit</span><span class="s2">&gt;() {</span>
+      <span class="s1">@Override</span>
+      <span class="s1">@NonNull</span>
+      <span class="s0">public </span><span class="s1">Unit call</span><span class="s2">() </span><span class="s0">throws </span><span class="s1">Exception </span><span class="s2">{</span>
+        <span class="s1">__db</span><span class="s2">.</span><span class="s1">beginTransaction</span><span class="s2">();</span>
+        <span class="s0">try </span><span class="s2">{</span>
+          <span class="s1">__updateAdapterOfUtang</span><span class="s2">.</span><span class="s1">handle</span><span class="s2">(</span><span class="s1">utang</span><span class="s2">);</span>
+          <span class="s1">__db</span><span class="s2">.</span><span class="s1">setTransactionSuccessful</span><span class="s2">();</span>
+          <span class="s0">return </span><span class="s1">Unit</span><span class="s2">.</span><span class="s1">INSTANCE</span><span class="s2">;</span>
+        <span class="s2">} </span><span class="s0">finally </span><span class="s2">{</span>
+          <span class="s1">__db</span><span class="s2">.</span><span class="s1">endTransaction</span><span class="s2">();</span>
+        <span class="s2">}</span>
+      <span class="s2">}</span>
+    <span class="s2">}, </span><span class="s1">$completion</span><span class="s2">);</span>
+  <span class="s2">}</span>
+
+  <span class="s1">@Override</span>
+  <span class="s0">public </span><span class="s1">Flow</span><span class="s2">&lt;</span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">Utang</span><span class="s2">&gt;&gt; </span><span class="s1">getAllUtang</span><span class="s2">() {</span>
+    <span class="s0">final </span><span class="s1">String _sql </span><span class="s2">= </span><span class="s3">&quot;SELECT * FROM utang ORDER BY dateCreated DESC&quot;</span><span class="s2">;</span>
+    <span class="s0">final </span><span class="s1">RoomSQLiteQuery _statement </span><span class="s2">= </span><span class="s1">RoomSQLiteQuery</span><span class="s2">.</span><span class="s1">acquire</span><span class="s2">(</span><span class="s1">_sql</span><span class="s2">, </span><span class="s4">0</span><span class="s2">);</span>
+    <span class="s0">return </span><span class="s1">CoroutinesRoom</span><span class="s2">.</span><span class="s1">createFlow</span><span class="s2">(</span><span class="s1">__db</span><span class="s2">, </span><span class="s0">false</span><span class="s2">, </span><span class="s0">new </span><span class="s1">String</span><span class="s2">[] {</span><span class="s3">&quot;utang&quot;</span><span class="s2">}, </span><span class="s0">new </span><span class="s1">Callable</span><span class="s2">&lt;</span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">Utang</span><span class="s2">&gt;&gt;() {</span>
+      <span class="s1">@Override</span>
+      <span class="s1">@NonNull</span>
+      <span class="s0">public </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">Utang</span><span class="s2">&gt; </span><span class="s1">call</span><span class="s2">() </span><span class="s0">throws </span><span class="s1">Exception </span><span class="s2">{</span>
+        <span class="s0">final </span><span class="s1">Cursor _cursor </span><span class="s2">= </span><span class="s1">DBUtil</span><span class="s2">.</span><span class="s1">query</span><span class="s2">(</span><span class="s1">__db</span><span class="s2">, </span><span class="s1">_statement</span><span class="s2">, </span><span class="s0">false</span><span class="s2">, </span><span class="s0">null</span><span class="s2">);</span>
+        <span class="s0">try </span><span class="s2">{</span>
+          <span class="s0">final int </span><span class="s1">_cursorIndexOfId </span><span class="s2">= </span><span class="s1">CursorUtil</span><span class="s2">.</span><span class="s1">getColumnIndexOrThrow</span><span class="s2">(</span><span class="s1">_cursor</span><span class="s2">, </span><span class="s3">&quot;id&quot;</span><span class="s2">);</span>
+          <span class="s0">final int </span><span class="s1">_cursorIndexOfCustomerName </span><span class="s2">= </span><span class="s1">CursorUtil</span><span class="s2">.</span><span class="s1">getColumnIndexOrThrow</span><span class="s2">(</span><span class="s1">_cursor</span><span class="s2">, </span><span class="s3">&quot;customerName&quot;</span><span class="s2">);</span>
+          <span class="s0">final int </span><span class="s1">_cursorIndexOfAmount </span><span class="s2">= </span><span class="s1">CursorUtil</span><span class="s2">.</span><span class="s1">getColumnIndexOrThrow</span><span class="s2">(</span><span class="s1">_cursor</span><span class="s2">, </span><span class="s3">&quot;amount&quot;</span><span class="s2">);</span>
+          <span class="s0">final int </span><span class="s1">_cursorIndexOfDateCreated </span><span class="s2">= </span><span class="s1">CursorUtil</span><span class="s2">.</span><span class="s1">getColumnIndexOrThrow</span><span class="s2">(</span><span class="s1">_cursor</span><span class="s2">, </span><span class="s3">&quot;dateCreated&quot;</span><span class="s2">);</span>
+          <span class="s0">final int </span><span class="s1">_cursorIndexOfIsPaid </span><span class="s2">= </span><span class="s1">CursorUtil</span><span class="s2">.</span><span class="s1">getColumnIndexOrThrow</span><span class="s2">(</span><span class="s1">_cursor</span><span class="s2">, </span><span class="s3">&quot;isPaid&quot;</span><span class="s2">);</span>
+          <span class="s0">final int </span><span class="s1">_cursorIndexOfDatePaid </span><span class="s2">= </span><span class="s1">CursorUtil</span><span class="s2">.</span><span class="s1">getColumnIndexOrThrow</span><span class="s2">(</span><span class="s1">_cursor</span><span class="s2">, </span><span class="s3">&quot;datePaid&quot;</span><span class="s2">);</span>
+          <span class="s0">final int </span><span class="s1">_cursorIndexOfNotes </span><span class="s2">= </span><span class="s1">CursorUtil</span><span class="s2">.</span><span class="s1">getColumnIndexOrThrow</span><span class="s2">(</span><span class="s1">_cursor</span><span class="s2">, </span><span class="s3">&quot;notes&quot;</span><span class="s2">);</span>
+          <span class="s0">final </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">Utang</span><span class="s2">&gt; </span><span class="s1">_result </span><span class="s2">= </span><span class="s0">new </span><span class="s1">ArrayList</span><span class="s2">&lt;</span><span class="s1">Utang</span><span class="s2">&gt;(</span><span class="s1">_cursor</span><span class="s2">.</span><span class="s1">getCount</span><span class="s2">());</span>
+          <span class="s0">while </span><span class="s2">(</span><span class="s1">_cursor</span><span class="s2">.</span><span class="s1">moveToNext</span><span class="s2">()) {</span>
+            <span class="s0">final </span><span class="s1">Utang _item</span><span class="s2">;</span>
+            <span class="s0">final int </span><span class="s1">_tmpId</span><span class="s2">;</span>
+            <span class="s1">_tmpId </span><span class="s2">= </span><span class="s1">_cursor</span><span class="s2">.</span><span class="s1">getInt</span><span class="s2">(</span><span class="s1">_cursorIndexOfId</span><span class="s2">);</span>
+            <span class="s0">final </span><span class="s1">String _tmpCustomerName</span><span class="s2">;</span>
+            <span class="s1">_tmpCustomerName </span><span class="s2">= </span><span class="s1">_cursor</span><span class="s2">.</span><span class="s1">getString</span><span class="s2">(</span><span class="s1">_cursorIndexOfCustomerName</span><span class="s2">);</span>
+            <span class="s0">final double </span><span class="s1">_tmpAmount</span><span class="s2">;</span>
+            <span class="s1">_tmpAmount </span><span class="s2">= </span><span class="s1">_cursor</span><span class="s2">.</span><span class="s1">getDouble</span><span class="s2">(</span><span class="s1">_cursorIndexOfAmount</span><span class="s2">);</span>
+            <span class="s0">final long </span><span class="s1">_tmpDateCreated</span><span class="s2">;</span>
+            <span class="s1">_tmpDateCreated </span><span class="s2">= </span><span class="s1">_cursor</span><span class="s2">.</span><span class="s1">getLong</span><span class="s2">(</span><span class="s1">_cursorIndexOfDateCreated</span><span class="s2">);</span>
+            <span class="s0">final boolean </span><span class="s1">_tmpIsPaid</span><span class="s2">;</span>
+            <span class="s0">final int </span><span class="s1">_tmp</span><span class="s2">;</span>
+            <span class="s1">_tmp </span><span class="s2">= </span><span class="s1">_cursor</span><span class="s2">.</span><span class="s1">getInt</span><span class="s2">(</span><span class="s1">_cursorIndexOfIsPaid</span><span class="s2">);</span>
+            <span class="s1">_tmpIsPaid </span><span class="s2">= </span><span class="s1">_tmp </span><span class="s2">!= </span><span class="s4">0</span><span class="s2">;</span>
+            <span class="s0">final </span><span class="s1">Long _tmpDatePaid</span><span class="s2">;</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">_cursor</span><span class="s2">.</span><span class="s1">isNull</span><span class="s2">(</span><span class="s1">_cursorIndexOfDatePaid</span><span class="s2">)) {</span>
+              <span class="s1">_tmpDatePaid </span><span class="s2">= </span><span class="s0">null</span><span class="s2">;</span>
+            <span class="s2">} </span><span class="s0">else </span><span class="s2">{</span>
+              <span class="s1">_tmpDatePaid </span><span class="s2">= </span><span class="s1">_cursor</span><span class="s2">.</span><span class="s1">getLong</span><span class="s2">(</span><span class="s1">_cursorIndexOfDatePaid</span><span class="s2">);</span>
+            <span class="s2">}</span>
+            <span class="s0">final </span><span class="s1">String _tmpNotes</span><span class="s2">;</span>
+            <span class="s1">_tmpNotes </span><span class="s2">= </span><span class="s1">_cursor</span><span class="s2">.</span><span class="s1">getString</span><span class="s2">(</span><span class="s1">_cursorIndexOfNotes</span><span class="s2">);</span>
+            <span class="s1">_item </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Utang</span><span class="s2">(</span><span class="s1">_tmpId</span><span class="s2">,</span><span class="s1">_tmpCustomerName</span><span class="s2">,</span><span class="s1">_tmpAmount</span><span class="s2">,</span><span class="s1">_tmpDateCreated</span><span class="s2">,</span><span class="s1">_tmpIsPaid</span><span class="s2">,</span><span class="s1">_tmpDatePaid</span><span class="s2">,</span><span class="s1">_tmpNotes</span><span class="s2">);</span>
+            <span class="s1">_result</span><span class="s2">.</span><span class="s1">add</span><span class="s2">(</span><span class="s1">_item</span><span class="s2">);</span>
+          <span class="s2">}</span>
+          <span class="s0">return </span><span class="s1">_result</span><span class="s2">;</span>
+        <span class="s2">} </span><span class="s0">finally </span><span class="s2">{</span>
+          <span class="s1">_cursor</span><span class="s2">.</span><span class="s1">close</span><span class="s2">();</span>
+        <span class="s2">}</span>
+      <span class="s2">}</span>
+
+      <span class="s1">@Override</span>
+      <span class="s0">protected void </span><span class="s1">finalize</span><span class="s2">() {</span>
+        <span class="s1">_statement</span><span class="s2">.</span><span class="s1">release</span><span class="s2">();</span>
+      <span class="s2">}</span>
+    <span class="s2">});</span>
+  <span class="s2">}</span>
+
+  <span class="s1">@NonNull</span>
+  <span class="s0">public static </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">Class</span><span class="s2">&lt;?&gt;&gt; </span><span class="s1">getRequiredConverters</span><span class="s2">() {</span>
+    <span class="s0">return </span><span class="s1">Collections</span><span class="s2">.</span><span class="s1">emptyList</span><span class="s2">();</span>
+  <span class="s2">}</span>
+<span class="s2">}</span>
+</pre>
+</body>
+</html>

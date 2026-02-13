@@ -1,0 +1,293 @@
+<html>
+<head>
+<title>QuickSaleScreen.kt</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cf8e6d;}
+.s1 { color: #bcbec4;}
+.s2 { color: #bcbec4;}
+.s3 { color: #6aab73;}
+.s4 { color: #7a7e85;}
+.s5 { color: #2aacb8;}
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+QuickSaleScreen.kt</font>
+</center></td></tr></table>
+<pre><span class="s0">package </span><span class="s1">com</span><span class="s2">.</span><span class="s1">example</span><span class="s2">.</span><span class="s1">sariaudit</span><span class="s2">.</span><span class="s1">ui</span><span class="s2">.</span><span class="s1">screens</span>
+
+<span class="s1">import androidx</span><span class="s2">.</span><span class="s1">compose</span><span class="s2">.</span><span class="s1">foundation</span><span class="s2">.</span><span class="s1">BorderStroke</span>
+<span class="s1">import androidx</span><span class="s2">.</span><span class="s1">compose</span><span class="s2">.</span><span class="s1">foundation</span><span class="s2">.</span><span class="s1">clickable</span>
+<span class="s1">import androidx</span><span class="s2">.</span><span class="s1">compose</span><span class="s2">.</span><span class="s1">foundation</span><span class="s2">.</span><span class="s1">layout</span><span class="s2">.*</span>
+<span class="s1">import androidx</span><span class="s2">.</span><span class="s1">compose</span><span class="s2">.</span><span class="s1">foundation</span><span class="s2">.</span><span class="s1">lazy</span><span class="s2">.</span><span class="s1">LazyColumn</span>
+<span class="s1">import androidx</span><span class="s2">.</span><span class="s1">compose</span><span class="s2">.</span><span class="s1">foundation</span><span class="s2">.</span><span class="s1">lazy</span><span class="s2">.</span><span class="s1">grid</span><span class="s2">.</span><span class="s1">GridCells</span>
+<span class="s1">import androidx</span><span class="s2">.</span><span class="s1">compose</span><span class="s2">.</span><span class="s1">foundation</span><span class="s2">.</span><span class="s1">lazy</span><span class="s2">.</span><span class="s1">grid</span><span class="s2">.</span><span class="s1">LazyVerticalGrid</span>
+<span class="s1">import androidx</span><span class="s2">.</span><span class="s1">compose</span><span class="s2">.</span><span class="s1">foundation</span><span class="s2">.</span><span class="s1">lazy</span><span class="s2">.</span><span class="s1">grid</span><span class="s2">.</span><span class="s1">items</span>
+<span class="s1">import androidx</span><span class="s2">.</span><span class="s1">compose</span><span class="s2">.</span><span class="s1">foundation</span><span class="s2">.</span><span class="s1">lazy</span><span class="s2">.</span><span class="s1">items</span>
+<span class="s1">import androidx</span><span class="s2">.</span><span class="s1">compose</span><span class="s2">.</span><span class="s1">foundation</span><span class="s2">.</span><span class="s1">text</span><span class="s2">.</span><span class="s1">KeyboardOptions</span>
+<span class="s1">import androidx</span><span class="s2">.</span><span class="s1">compose</span><span class="s2">.</span><span class="s1">material</span><span class="s2">.</span><span class="s1">icons</span><span class="s2">.</span><span class="s1">Icons</span>
+<span class="s1">import androidx</span><span class="s2">.</span><span class="s1">compose</span><span class="s2">.</span><span class="s1">material</span><span class="s2">.</span><span class="s1">icons</span><span class="s2">.</span><span class="s1">filled</span><span class="s2">.*</span>
+<span class="s1">import androidx</span><span class="s2">.</span><span class="s1">compose</span><span class="s2">.</span><span class="s1">material3</span><span class="s2">.*</span>
+<span class="s1">import androidx</span><span class="s2">.</span><span class="s1">compose</span><span class="s2">.</span><span class="s1">runtime</span><span class="s2">.*</span>
+<span class="s1">import androidx</span><span class="s2">.</span><span class="s1">compose</span><span class="s2">.</span><span class="s1">ui</span><span class="s2">.</span><span class="s1">Alignment</span>
+<span class="s1">import androidx</span><span class="s2">.</span><span class="s1">compose</span><span class="s2">.</span><span class="s1">ui</span><span class="s2">.</span><span class="s1">Modifier</span>
+<span class="s1">import androidx</span><span class="s2">.</span><span class="s1">compose</span><span class="s2">.</span><span class="s1">ui</span><span class="s2">.</span><span class="s1">graphics</span><span class="s2">.</span><span class="s1">Color</span>
+<span class="s1">import androidx</span><span class="s2">.</span><span class="s1">compose</span><span class="s2">.</span><span class="s1">ui</span><span class="s2">.</span><span class="s1">text</span><span class="s2">.</span><span class="s1">font</span><span class="s2">.</span><span class="s1">FontWeight</span>
+<span class="s1">import androidx</span><span class="s2">.</span><span class="s1">compose</span><span class="s2">.</span><span class="s1">ui</span><span class="s2">.</span><span class="s1">text</span><span class="s2">.</span><span class="s1">input</span><span class="s2">.</span><span class="s1">KeyboardType</span>
+<span class="s1">import androidx</span><span class="s2">.</span><span class="s1">compose</span><span class="s2">.</span><span class="s1">ui</span><span class="s2">.</span><span class="s1">text</span><span class="s2">.</span><span class="s1">style</span><span class="s2">.</span><span class="s1">TextAlign</span>
+<span class="s1">import androidx</span><span class="s2">.</span><span class="s1">compose</span><span class="s2">.</span><span class="s1">ui</span><span class="s2">.</span><span class="s1">unit</span><span class="s2">.</span><span class="s1">dp</span>
+<span class="s1">import androidx</span><span class="s2">.</span><span class="s1">navigation</span><span class="s2">.</span><span class="s1">NavController</span>
+<span class="s1">import com</span><span class="s2">.</span><span class="s1">example</span><span class="s2">.</span><span class="s1">sariaudit</span><span class="s2">.</span><span class="s1">data</span><span class="s2">.</span><span class="s1">Product</span>
+<span class="s1">import com</span><span class="s2">.</span><span class="s1">example</span><span class="s2">.</span><span class="s1">sariaudit</span><span class="s2">.</span><span class="s1">ui</span><span class="s2">.</span><span class="s1">theme</span><span class="s2">.*</span>
+<span class="s1">import com</span><span class="s2">.</span><span class="s1">example</span><span class="s2">.</span><span class="s1">sariaudit</span><span class="s2">.</span><span class="s1">viewmodel</span><span class="s2">.</span><span class="s1">CartItem</span>
+<span class="s1">import com</span><span class="s2">.</span><span class="s1">example</span><span class="s2">.</span><span class="s1">sariaudit</span><span class="s2">.</span><span class="s1">viewmodel</span><span class="s2">.</span><span class="s1">MainViewModel</span>
+
+<span class="s1">@OptIn</span><span class="s2">(</span><span class="s1">ExperimentalMaterial3Api::</span><span class="s0">class</span><span class="s2">)</span>
+<span class="s1">@Composable</span>
+<span class="s0">fun </span><span class="s1">QuickSaleScreen</span><span class="s2">(</span><span class="s1">navController: NavController</span><span class="s2">, </span><span class="s1">viewModel: MainViewModel</span><span class="s2">) {</span>
+    <span class="s0">val </span><span class="s1">products by viewModel</span><span class="s2">.</span><span class="s1">allProducts</span><span class="s2">.</span><span class="s1">collectAsState</span><span class="s2">()</span>
+    <span class="s0">val </span><span class="s1">cartItems by viewModel</span><span class="s2">.</span><span class="s1">cart</span><span class="s2">.</span><span class="s1">collectAsState</span><span class="s2">()</span>
+    <span class="s0">val </span><span class="s1">cartTotal by viewModel</span><span class="s2">.</span><span class="s1">cartTotal</span><span class="s2">.</span><span class="s1">collectAsState</span><span class="s2">()</span>
+
+    <span class="s0">var </span><span class="s1">searchQuery by remember </span><span class="s2">{ </span><span class="s1">mutableStateOf</span><span class="s2">(</span><span class="s3">&quot;&quot;</span><span class="s2">) }</span>
+    <span class="s0">var </span><span class="s1">showConfirmDialog by remember </span><span class="s2">{ </span><span class="s1">mutableStateOf</span><span class="s2">(</span><span class="s0">false</span><span class="s2">) }</span>
+
+    <span class="s0">val </span><span class="s1">filteredProducts </span><span class="s2">= </span><span class="s1">products</span><span class="s2">.</span><span class="s1">filter </span><span class="s2">{ </span><span class="s1">it</span><span class="s2">.</span><span class="s1">name</span><span class="s2">.</span><span class="s1">contains</span><span class="s2">(</span><span class="s1">searchQuery</span><span class="s2">, </span><span class="s1">ignoreCase </span><span class="s2">= </span><span class="s0">true</span><span class="s2">) }</span>
+
+    <span class="s1">Scaffold</span><span class="s2">(</span>
+        <span class="s1">topBar </span><span class="s2">= {</span>
+            <span class="s1">TopAppBar</span><span class="s2">(</span>
+                <span class="s1">title </span><span class="s2">= { </span><span class="s1">Text</span><span class="s2">(</span><span class="s3">&quot;Quick Sale&quot;</span><span class="s2">, </span><span class="s1">color </span><span class="s2">= </span><span class="s1">Color</span><span class="s2">.</span><span class="s1">White</span><span class="s2">) },</span>
+                <span class="s1">colors </span><span class="s2">= </span><span class="s1">TopAppBarDefaults</span><span class="s2">.</span><span class="s1">topAppBarColors</span><span class="s2">(</span><span class="s1">containerColor </span><span class="s2">= </span><span class="s1">TealGreen</span><span class="s2">),</span>
+                <span class="s1">navigationIcon </span><span class="s2">= {</span>
+                    <span class="s1">IconButton</span><span class="s2">(</span><span class="s1">onClick </span><span class="s2">= { </span><span class="s1">navController</span><span class="s2">.</span><span class="s1">popBackStack</span><span class="s2">() }) {</span>
+                        <span class="s1">Icon</span><span class="s2">(</span><span class="s1">Icons</span><span class="s2">.</span><span class="s1">Default</span><span class="s2">.</span><span class="s1">ArrowBack</span><span class="s2">, </span><span class="s0">null</span><span class="s2">, </span><span class="s1">tint </span><span class="s2">= </span><span class="s1">Color</span><span class="s2">.</span><span class="s1">White</span><span class="s2">)</span>
+                    <span class="s2">}</span>
+                <span class="s2">}</span>
+            <span class="s2">)</span>
+        <span class="s2">}</span>
+    <span class="s2">) { </span><span class="s1">padding </span><span class="s2">-&gt;</span>
+        <span class="s1">Column</span><span class="s2">(</span><span class="s1">Modifier</span><span class="s2">.</span><span class="s1">padding</span><span class="s2">(</span><span class="s1">padding</span><span class="s2">).</span><span class="s1">fillMaxSize</span><span class="s2">()) {</span>
+
+            <span class="s4">// 1. SEARCH BAR</span>
+            <span class="s1">OutlinedTextField</span><span class="s2">(</span>
+                <span class="s1">value </span><span class="s2">= </span><span class="s1">searchQuery</span><span class="s2">,</span>
+                <span class="s1">onValueChange </span><span class="s2">= { </span><span class="s1">searchQuery </span><span class="s2">= </span><span class="s1">it </span><span class="s2">},</span>
+                <span class="s1">placeholder </span><span class="s2">= { </span><span class="s1">Text</span><span class="s2">(</span><span class="s3">&quot;Search Item...&quot;</span><span class="s2">) },</span>
+                <span class="s1">modifier </span><span class="s2">= </span><span class="s1">Modifier</span><span class="s2">.</span><span class="s1">fillMaxWidth</span><span class="s2">().</span><span class="s1">padding</span><span class="s2">(</span><span class="s5">8</span><span class="s2">.</span><span class="s1">dp</span><span class="s2">),</span>
+                <span class="s1">leadingIcon </span><span class="s2">= { </span><span class="s1">Icon</span><span class="s2">(</span><span class="s1">Icons</span><span class="s2">.</span><span class="s1">Default</span><span class="s2">.</span><span class="s1">Search</span><span class="s2">, </span><span class="s0">null</span><span class="s2">) }</span>
+            <span class="s2">)</span>
+
+            <span class="s4">// 2. PRODUCT GRID</span>
+            <span class="s1">LazyVerticalGrid</span><span class="s2">(</span>
+                <span class="s1">columns </span><span class="s2">= </span><span class="s1">GridCells</span><span class="s2">.</span><span class="s1">Fixed</span><span class="s2">(</span><span class="s5">3</span><span class="s2">),</span>
+                <span class="s1">contentPadding </span><span class="s2">= </span><span class="s1">PaddingValues</span><span class="s2">(</span><span class="s5">8</span><span class="s2">.</span><span class="s1">dp</span><span class="s2">),</span>
+                <span class="s1">modifier </span><span class="s2">= </span><span class="s1">Modifier</span><span class="s2">.</span><span class="s1">weight</span><span class="s2">(</span><span class="s5">1f</span><span class="s2">),</span>
+                <span class="s1">horizontalArrangement </span><span class="s2">= </span><span class="s1">Arrangement</span><span class="s2">.</span><span class="s1">spacedBy</span><span class="s2">(</span><span class="s5">4</span><span class="s2">.</span><span class="s1">dp</span><span class="s2">),</span>
+                <span class="s1">verticalArrangement </span><span class="s2">= </span><span class="s1">Arrangement</span><span class="s2">.</span><span class="s1">spacedBy</span><span class="s2">(</span><span class="s5">4</span><span class="s2">.</span><span class="s1">dp</span><span class="s2">)</span>
+            <span class="s2">) {</span>
+                <span class="s1">items</span><span class="s2">(</span><span class="s1">filteredProducts</span><span class="s2">) { </span><span class="s1">product </span><span class="s2">-&gt;</span>
+                    <span class="s1">ProductGridItem</span><span class="s2">(</span><span class="s1">product</span><span class="s2">) { </span><span class="s1">viewModel</span><span class="s2">.</span><span class="s1">addToCart</span><span class="s2">(</span><span class="s1">product</span><span class="s2">) }</span>
+                <span class="s2">}</span>
+            <span class="s2">}</span>
+
+            <span class="s4">// 3. CART SECTION</span>
+            <span class="s1">Surface</span><span class="s2">(</span>
+                <span class="s1">modifier </span><span class="s2">= </span><span class="s1">Modifier</span><span class="s2">.</span><span class="s1">fillMaxWidth</span><span class="s2">().</span><span class="s1">height</span><span class="s2">(</span><span class="s5">350</span><span class="s2">.</span><span class="s1">dp</span><span class="s2">),</span>
+                <span class="s1">color </span><span class="s2">= </span><span class="s1">Color</span><span class="s2">.</span><span class="s1">White</span><span class="s2">,</span>
+                <span class="s1">shadowElevation </span><span class="s2">= </span><span class="s5">16</span><span class="s2">.</span><span class="s1">dp</span><span class="s2">,</span>
+                <span class="s1">shape </span><span class="s2">= </span><span class="s1">androidx</span><span class="s2">.</span><span class="s1">compose</span><span class="s2">.</span><span class="s1">foundation</span><span class="s2">.</span><span class="s1">shape</span><span class="s2">.</span><span class="s1">RoundedCornerShape</span><span class="s2">(</span><span class="s1">topStart </span><span class="s2">= </span><span class="s5">16</span><span class="s2">.</span><span class="s1">dp</span><span class="s2">, </span><span class="s1">topEnd </span><span class="s2">= </span><span class="s5">16</span><span class="s2">.</span><span class="s1">dp</span><span class="s2">)</span>
+            <span class="s2">) {</span>
+                <span class="s1">Column</span><span class="s2">(</span><span class="s1">Modifier</span><span class="s2">.</span><span class="s1">padding</span><span class="s2">(</span><span class="s5">16</span><span class="s2">.</span><span class="s1">dp</span><span class="s2">)) {</span>
+                    <span class="s1">Text</span><span class="s2">(</span><span class="s3">&quot;Current Cart (</span><span class="s0">${</span><span class="s1">cartItems</span><span class="s2">.</span><span class="s1">sumOf </span><span class="s2">{ </span><span class="s1">it</span><span class="s2">.</span><span class="s1">quantity </span><span class="s2">}</span><span class="s0">} </span><span class="s3">items)&quot;</span><span class="s2">, </span><span class="s1">style </span><span class="s2">= </span><span class="s1">MaterialTheme</span><span class="s2">.</span><span class="s1">typography</span><span class="s2">.</span><span class="s1">titleMedium</span><span class="s2">, </span><span class="s1">fontWeight </span><span class="s2">= </span><span class="s1">FontWeight</span><span class="s2">.</span><span class="s1">Bold</span><span class="s2">)</span>
+                    <span class="s1">Divider</span><span class="s2">(</span><span class="s1">Modifier</span><span class="s2">.</span><span class="s1">padding</span><span class="s2">(</span><span class="s1">vertical </span><span class="s2">= </span><span class="s5">8</span><span class="s2">.</span><span class="s1">dp</span><span class="s2">))</span>
+
+                    <span class="s4">// Cart List</span>
+                    <span class="s1">LazyColumn</span><span class="s2">(</span><span class="s1">Modifier</span><span class="s2">.</span><span class="s1">weight</span><span class="s2">(</span><span class="s5">1f</span><span class="s2">)) {</span>
+                        <span class="s1">items</span><span class="s2">(</span><span class="s1">cartItems</span><span class="s2">) { </span><span class="s1">item </span><span class="s2">-&gt;</span>
+                            <span class="s1">CartRowItem</span><span class="s2">(</span>
+                                <span class="s1">item </span><span class="s2">= </span><span class="s1">item</span><span class="s2">,</span>
+                                <span class="s1">onUpdateQty </span><span class="s2">= { </span><span class="s1">q </span><span class="s2">-&gt; </span><span class="s1">viewModel</span><span class="s2">.</span><span class="s1">updateCartQuantity</span><span class="s2">(</span><span class="s1">item</span><span class="s2">.</span><span class="s1">product</span><span class="s2">, </span><span class="s1">q</span><span class="s2">) },</span>
+                                <span class="s1">onRemove </span><span class="s2">= { </span><span class="s1">viewModel</span><span class="s2">.</span><span class="s1">removeFromCart</span><span class="s2">(</span><span class="s1">item</span><span class="s2">.</span><span class="s1">product</span><span class="s2">) }</span>
+                            <span class="s2">)</span>
+                        <span class="s2">}</span>
+                    <span class="s2">}</span>
+
+                    <span class="s1">Divider</span><span class="s2">(</span><span class="s1">Modifier</span><span class="s2">.</span><span class="s1">padding</span><span class="s2">(</span><span class="s1">vertical </span><span class="s2">= </span><span class="s5">8</span><span class="s2">.</span><span class="s1">dp</span><span class="s2">))</span>
+
+                    <span class="s4">// TOTAL &amp; BUTTONS ROW</span>
+                    <span class="s1">Row</span><span class="s2">(</span>
+                        <span class="s1">Modifier</span><span class="s2">.</span><span class="s1">fillMaxWidth</span><span class="s2">(),</span>
+                        <span class="s1">horizontalArrangement </span><span class="s2">= </span><span class="s1">Arrangement</span><span class="s2">.</span><span class="s1">SpaceBetween</span><span class="s2">,</span>
+                        <span class="s1">verticalAlignment </span><span class="s2">= </span><span class="s1">Alignment</span><span class="s2">.</span><span class="s1">CenterVertically</span>
+                    <span class="s2">) {</span>
+                        <span class="s1">Column </span><span class="s2">{</span>
+                            <span class="s1">Text</span><span class="s2">(</span><span class="s3">&quot;Total Amount&quot;</span><span class="s2">, </span><span class="s1">style </span><span class="s2">= </span><span class="s1">MaterialTheme</span><span class="s2">.</span><span class="s1">typography</span><span class="s2">.</span><span class="s1">bodySmall</span><span class="s2">)</span>
+                            <span class="s1">Text</span><span class="s2">(</span><span class="s3">&quot;₱%.2f&quot;</span><span class="s2">.</span><span class="s1">format</span><span class="s2">(</span><span class="s1">cartTotal</span><span class="s2">), </span><span class="s1">style </span><span class="s2">= </span><span class="s1">MaterialTheme</span><span class="s2">.</span><span class="s1">typography</span><span class="s2">.</span><span class="s1">headlineMedium</span><span class="s2">, </span><span class="s1">color </span><span class="s2">= </span><span class="s1">TealGreen</span><span class="s2">, </span><span class="s1">fontWeight </span><span class="s2">= </span><span class="s1">FontWeight</span><span class="s2">.</span><span class="s1">Bold</span><span class="s2">)</span>
+                        <span class="s2">}</span>
+
+                        <span class="s1">Row</span><span class="s2">(</span><span class="s1">horizontalArrangement </span><span class="s2">= </span><span class="s1">Arrangement</span><span class="s2">.</span><span class="s1">spacedBy</span><span class="s2">(</span><span class="s5">8</span><span class="s2">.</span><span class="s1">dp</span><span class="s2">)) {</span>
+                            <span class="s4">// CANCEL BUTTON</span>
+                            <span class="s1">OutlinedButton</span><span class="s2">(</span>
+                                <span class="s1">onClick </span><span class="s2">= { </span><span class="s1">viewModel</span><span class="s2">.</span><span class="s1">clearCart</span><span class="s2">() },</span>
+                                <span class="s1">enabled </span><span class="s2">= </span><span class="s1">cartItems</span><span class="s2">.</span><span class="s1">isNotEmpty</span><span class="s2">(),</span>
+                                <span class="s1">colors </span><span class="s2">= </span><span class="s1">ButtonDefaults</span><span class="s2">.</span><span class="s1">outlinedButtonColors</span><span class="s2">(</span><span class="s1">contentColor </span><span class="s2">= </span><span class="s1">ErrorRed</span><span class="s2">),</span>
+                                <span class="s1">border </span><span class="s2">= </span><span class="s1">BorderStroke</span><span class="s2">(</span><span class="s5">1</span><span class="s2">.</span><span class="s1">dp</span><span class="s2">, </span><span class="s0">if</span><span class="s2">(</span><span class="s1">cartItems</span><span class="s2">.</span><span class="s1">isNotEmpty</span><span class="s2">()) </span><span class="s1">ErrorRed </span><span class="s0">else </span><span class="s1">Color</span><span class="s2">.</span><span class="s1">LightGray</span><span class="s2">),</span>
+                                <span class="s1">shape </span><span class="s2">= </span><span class="s1">androidx</span><span class="s2">.</span><span class="s1">compose</span><span class="s2">.</span><span class="s1">foundation</span><span class="s2">.</span><span class="s1">shape</span><span class="s2">.</span><span class="s1">RoundedCornerShape</span><span class="s2">(</span><span class="s5">8</span><span class="s2">.</span><span class="s1">dp</span><span class="s2">)</span>
+                            <span class="s2">) {</span>
+                                <span class="s1">Text</span><span class="s2">(</span><span class="s3">&quot;Cancel&quot;</span><span class="s2">)</span>
+                            <span class="s2">}</span>
+
+                            <span class="s4">// CHECKOUT BUTTON</span>
+                            <span class="s1">Button</span><span class="s2">(</span>
+                                <span class="s1">onClick </span><span class="s2">= { </span><span class="s1">showConfirmDialog </span><span class="s2">= </span><span class="s0">true </span><span class="s2">},</span>
+                                <span class="s1">colors </span><span class="s2">= </span><span class="s1">ButtonDefaults</span><span class="s2">.</span><span class="s1">buttonColors</span><span class="s2">(</span><span class="s1">containerColor </span><span class="s2">= </span><span class="s1">TealGreen</span><span class="s2">),</span>
+                                <span class="s1">enabled </span><span class="s2">= </span><span class="s1">cartItems</span><span class="s2">.</span><span class="s1">isNotEmpty</span><span class="s2">(),</span>
+                                <span class="s1">shape </span><span class="s2">= </span><span class="s1">androidx</span><span class="s2">.</span><span class="s1">compose</span><span class="s2">.</span><span class="s1">foundation</span><span class="s2">.</span><span class="s1">shape</span><span class="s2">.</span><span class="s1">RoundedCornerShape</span><span class="s2">(</span><span class="s5">8</span><span class="s2">.</span><span class="s1">dp</span><span class="s2">)</span>
+                            <span class="s2">) {</span>
+                                <span class="s1">Text</span><span class="s2">(</span><span class="s3">&quot;CHECK OUT&quot;</span><span class="s2">, </span><span class="s1">fontWeight </span><span class="s2">= </span><span class="s1">FontWeight</span><span class="s2">.</span><span class="s1">Bold</span><span class="s2">)</span>
+                            <span class="s2">}</span>
+                        <span class="s2">}</span>
+                    <span class="s2">}</span>
+                <span class="s2">}</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s0">if </span><span class="s2">(</span><span class="s1">showConfirmDialog</span><span class="s2">) {</span>
+        <span class="s1">AlertDialog</span><span class="s2">(</span>
+            <span class="s1">onDismissRequest </span><span class="s2">= { </span><span class="s1">showConfirmDialog </span><span class="s2">= </span><span class="s0">false </span><span class="s2">},</span>
+            <span class="s1">title </span><span class="s2">= { </span><span class="s1">Text</span><span class="s2">(</span><span class="s3">&quot;Confirm Transaction&quot;</span><span class="s2">) },</span>
+            <span class="s1">text </span><span class="s2">= {</span>
+                <span class="s1">Column </span><span class="s2">{</span>
+                    <span class="s1">Text</span><span class="s2">(</span><span class="s3">&quot;You are about to complete this sale.&quot;</span><span class="s2">)</span>
+                    <span class="s1">Spacer</span><span class="s2">(</span><span class="s1">Modifier</span><span class="s2">.</span><span class="s1">height</span><span class="s2">(</span><span class="s5">8</span><span class="s2">.</span><span class="s1">dp</span><span class="s2">))</span>
+                    <span class="s1">Text</span><span class="s2">(</span><span class="s3">&quot;Total Items: </span><span class="s0">${</span><span class="s1">cartItems</span><span class="s2">.</span><span class="s1">sumOf </span><span class="s2">{ </span><span class="s1">it</span><span class="s2">.</span><span class="s1">quantity </span><span class="s2">}</span><span class="s0">}</span><span class="s3">&quot;</span><span class="s2">)</span>
+                    <span class="s1">Text</span><span class="s2">(</span><span class="s3">&quot;Total Amount: ₱%.2f&quot;</span><span class="s2">.</span><span class="s1">format</span><span class="s2">(</span><span class="s1">cartTotal</span><span class="s2">), </span><span class="s1">fontWeight </span><span class="s2">= </span><span class="s1">FontWeight</span><span class="s2">.</span><span class="s1">Bold</span><span class="s2">, </span><span class="s1">color </span><span class="s2">= </span><span class="s1">TealGreen</span><span class="s2">)</span>
+                <span class="s2">}</span>
+            <span class="s2">},</span>
+            <span class="s1">confirmButton </span><span class="s2">= {</span>
+                <span class="s1">Button</span><span class="s2">(</span>
+                    <span class="s1">onClick </span><span class="s2">= {</span>
+                        <span class="s1">viewModel</span><span class="s2">.</span><span class="s1">checkoutCart</span><span class="s2">()</span>
+                        <span class="s1">showConfirmDialog </span><span class="s2">= </span><span class="s0">false</span>
+                    <span class="s2">},</span>
+                    <span class="s1">colors </span><span class="s2">= </span><span class="s1">ButtonDefaults</span><span class="s2">.</span><span class="s1">buttonColors</span><span class="s2">(</span><span class="s1">containerColor </span><span class="s2">= </span><span class="s1">TealGreen</span><span class="s2">)</span>
+                <span class="s2">) {</span>
+                    <span class="s1">Text</span><span class="s2">(</span><span class="s3">&quot;Confirm&quot;</span><span class="s2">)</span>
+                <span class="s2">}</span>
+            <span class="s2">},</span>
+            <span class="s1">dismissButton </span><span class="s2">= {</span>
+                <span class="s1">TextButton</span><span class="s2">(</span><span class="s1">onClick </span><span class="s2">= { </span><span class="s1">showConfirmDialog </span><span class="s2">= </span><span class="s0">false </span><span class="s2">}) {</span>
+                    <span class="s1">Text</span><span class="s2">(</span><span class="s3">&quot;Cancel&quot;</span><span class="s2">)</span>
+                <span class="s2">}</span>
+            <span class="s2">}</span>
+        <span class="s2">)</span>
+    <span class="s2">}</span>
+<span class="s2">}</span>
+
+<span class="s1">@Composable</span>
+<span class="s0">fun </span><span class="s1">ProductGridItem</span><span class="s2">(</span><span class="s1">product: Product</span><span class="s2">, </span><span class="s1">onClick: </span><span class="s2">() -&gt; </span><span class="s1">Unit</span><span class="s2">) {</span>
+    <span class="s0">val </span><span class="s1">outOfStock </span><span class="s2">= </span><span class="s1">product</span><span class="s2">.</span><span class="s1">quantity </span><span class="s2">&lt;= </span><span class="s5">0</span>
+
+    <span class="s4">// CHANGED: Increased height to 110.dp to ensure all text fits</span>
+    <span class="s1">Card</span><span class="s2">(</span>
+        <span class="s1">modifier </span><span class="s2">= </span><span class="s1">Modifier</span>
+            <span class="s2">.</span><span class="s1">height</span><span class="s2">(</span><span class="s5">110</span><span class="s2">.</span><span class="s1">dp</span><span class="s2">)</span>
+            <span class="s2">.</span><span class="s1">clickable</span><span class="s2">(</span><span class="s1">enabled </span><span class="s2">= !</span><span class="s1">outOfStock</span><span class="s2">, </span><span class="s1">onClick </span><span class="s2">= </span><span class="s1">onClick</span><span class="s2">),</span>
+        <span class="s1">colors </span><span class="s2">= </span><span class="s1">CardDefaults</span><span class="s2">.</span><span class="s1">cardColors</span><span class="s2">(</span><span class="s1">containerColor </span><span class="s2">= </span><span class="s0">if </span><span class="s2">(</span><span class="s1">outOfStock</span><span class="s2">) </span><span class="s1">Color</span><span class="s2">.</span><span class="s1">LightGray </span><span class="s0">else </span><span class="s1">OffWhite</span><span class="s2">),</span>
+        <span class="s1">border </span><span class="s2">= </span><span class="s1">BorderStroke</span><span class="s2">(</span><span class="s5">1</span><span class="s2">.</span><span class="s1">dp</span><span class="s2">, </span><span class="s1">Color</span><span class="s2">.</span><span class="s1">Gray</span><span class="s2">),</span>
+        <span class="s1">elevation </span><span class="s2">= </span><span class="s1">CardDefaults</span><span class="s2">.</span><span class="s1">cardElevation</span><span class="s2">(</span><span class="s5">1</span><span class="s2">.</span><span class="s1">dp</span><span class="s2">)</span>
+    <span class="s2">) {</span>
+        <span class="s1">Column</span><span class="s2">(</span>
+            <span class="s1">Modifier</span>
+                <span class="s2">.</span><span class="s1">fillMaxSize</span><span class="s2">()</span>
+                <span class="s2">.</span><span class="s1">padding</span><span class="s2">(</span><span class="s5">6</span><span class="s2">.</span><span class="s1">dp</span><span class="s2">), </span><span class="s4">// Increased padding slightly for breathing room</span>
+            <span class="s1">horizontalAlignment </span><span class="s2">= </span><span class="s1">Alignment</span><span class="s2">.</span><span class="s1">CenterHorizontally</span><span class="s2">,</span>
+            <span class="s1">verticalArrangement </span><span class="s2">= </span><span class="s1">Arrangement</span><span class="s2">.</span><span class="s1">Center </span><span class="s4">// Keep centered vertically</span>
+        <span class="s2">) {</span>
+            <span class="s4">// ICON</span>
+            <span class="s1">Icon</span><span class="s2">(</span>
+                <span class="s1">painter </span><span class="s2">= </span><span class="s1">androidx</span><span class="s2">.</span><span class="s1">compose</span><span class="s2">.</span><span class="s1">ui</span><span class="s2">.</span><span class="s1">res</span><span class="s2">.</span><span class="s1">painterResource</span><span class="s2">(</span><span class="s1">id </span><span class="s2">= </span><span class="s1">com</span><span class="s2">.</span><span class="s1">example</span><span class="s2">.</span><span class="s1">sariaudit</span><span class="s2">.</span><span class="s1">R</span><span class="s2">.</span><span class="s1">drawable</span><span class="s2">.</span><span class="s1">ic_package_2</span><span class="s2">),</span>
+                <span class="s1">contentDescription </span><span class="s2">= </span><span class="s0">null</span><span class="s2">,</span>
+                <span class="s1">tint </span><span class="s2">= </span><span class="s1">TealGreen</span><span class="s2">,</span>
+                <span class="s1">modifier </span><span class="s2">= </span><span class="s1">Modifier</span><span class="s2">.</span><span class="s1">size</span><span class="s2">(</span><span class="s5">24</span><span class="s2">.</span><span class="s1">dp</span><span class="s2">)</span>
+            <span class="s2">)</span>
+
+            <span class="s1">Spacer</span><span class="s2">(</span><span class="s1">Modifier</span><span class="s2">.</span><span class="s1">height</span><span class="s2">(</span><span class="s5">4</span><span class="s2">.</span><span class="s1">dp</span><span class="s2">))</span>
+
+            <span class="s4">// NAME: Added 'minLines' to reserve space for 2 lines even if text is short,</span>
+            <span class="s4">// ensuring alignment across the grid</span>
+            <span class="s1">Text</span><span class="s2">(</span>
+                <span class="s1">text </span><span class="s2">= </span><span class="s1">product</span><span class="s2">.</span><span class="s1">name</span><span class="s2">,</span>
+                <span class="s1">style </span><span class="s2">= </span><span class="s1">MaterialTheme</span><span class="s2">.</span><span class="s1">typography</span><span class="s2">.</span><span class="s1">bodySmall</span><span class="s2">,</span>
+                <span class="s1">textAlign </span><span class="s2">= </span><span class="s1">TextAlign</span><span class="s2">.</span><span class="s1">Center</span><span class="s2">,</span>
+                <span class="s1">maxLines </span><span class="s2">= </span><span class="s5">2</span><span class="s2">,</span>
+                <span class="s1">minLines </span><span class="s2">= </span><span class="s5">2</span><span class="s2">,</span>
+                <span class="s1">lineHeight </span><span class="s2">= </span><span class="s1">MaterialTheme</span><span class="s2">.</span><span class="s1">typography</span><span class="s2">.</span><span class="s1">bodySmall</span><span class="s2">.</span><span class="s1">fontSize </span><span class="s2">* </span><span class="s5">1.1 </span><span class="s4">// Slightly tighter line height if needed</span>
+            <span class="s2">)</span>
+
+            <span class="s4">// PRICE</span>
+            <span class="s1">Text</span><span class="s2">(</span>
+                <span class="s1">text </span><span class="s2">= </span><span class="s3">&quot;₱</span><span class="s0">${</span><span class="s1">product</span><span class="s2">.</span><span class="s1">sellingPrice</span><span class="s0">}</span><span class="s3">&quot;</span><span class="s2">,</span>
+                <span class="s1">color </span><span class="s2">= </span><span class="s1">DeepOrange</span><span class="s2">,</span>
+                <span class="s1">fontWeight </span><span class="s2">= </span><span class="s1">FontWeight</span><span class="s2">.</span><span class="s1">Bold</span><span class="s2">,</span>
+                <span class="s1">style </span><span class="s2">= </span><span class="s1">MaterialTheme</span><span class="s2">.</span><span class="s1">typography</span><span class="s2">.</span><span class="s1">bodyMedium</span>
+            <span class="s2">)</span>
+
+            <span class="s4">// QUANTITY</span>
+            <span class="s1">Text</span><span class="s2">(</span>
+                <span class="s1">text </span><span class="s2">= </span><span class="s3">&quot;</span><span class="s0">${</span><span class="s1">product</span><span class="s2">.</span><span class="s1">quantity</span><span class="s0">} </span><span class="s3">left&quot;</span><span class="s2">,</span>
+                <span class="s1">style </span><span class="s2">= </span><span class="s1">MaterialTheme</span><span class="s2">.</span><span class="s1">typography</span><span class="s2">.</span><span class="s1">labelSmall</span><span class="s2">,</span>
+                <span class="s1">color </span><span class="s2">= </span><span class="s1">Color</span><span class="s2">.</span><span class="s1">Gray</span>
+            <span class="s2">)</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+<span class="s2">}</span>
+
+<span class="s1">@Composable</span>
+<span class="s0">fun </span><span class="s1">CartRowItem</span><span class="s2">(</span><span class="s1">item: CartItem</span><span class="s2">, </span><span class="s1">onUpdateQty: </span><span class="s2">(</span><span class="s1">Int</span><span class="s2">) -&gt; </span><span class="s1">Unit</span><span class="s2">, </span><span class="s1">onRemove: </span><span class="s2">() -&gt; </span><span class="s1">Unit</span><span class="s2">) {</span>
+    <span class="s0">var </span><span class="s1">qtyText by remember</span><span class="s2">(</span><span class="s1">item</span><span class="s2">.</span><span class="s1">quantity</span><span class="s2">) { </span><span class="s1">mutableStateOf</span><span class="s2">(</span><span class="s1">item</span><span class="s2">.</span><span class="s1">quantity</span><span class="s2">.</span><span class="s1">toString</span><span class="s2">()) }</span>
+
+    <span class="s1">Row</span><span class="s2">(</span><span class="s1">Modifier</span><span class="s2">.</span><span class="s1">fillMaxWidth</span><span class="s2">().</span><span class="s1">padding</span><span class="s2">(</span><span class="s1">vertical </span><span class="s2">= </span><span class="s5">4</span><span class="s2">.</span><span class="s1">dp</span><span class="s2">), </span><span class="s1">verticalAlignment </span><span class="s2">= </span><span class="s1">Alignment</span><span class="s2">.</span><span class="s1">CenterVertically</span><span class="s2">) {</span>
+        <span class="s4">// Name &amp; Price</span>
+        <span class="s1">Column</span><span class="s2">(</span><span class="s1">Modifier</span><span class="s2">.</span><span class="s1">weight</span><span class="s2">(</span><span class="s5">1.2f</span><span class="s2">)) {</span>
+            <span class="s1">Text</span><span class="s2">(</span><span class="s1">item</span><span class="s2">.</span><span class="s1">product</span><span class="s2">.</span><span class="s1">name</span><span class="s2">, </span><span class="s1">fontWeight </span><span class="s2">= </span><span class="s1">FontWeight</span><span class="s2">.</span><span class="s1">Bold</span><span class="s2">, </span><span class="s1">style </span><span class="s2">= </span><span class="s1">MaterialTheme</span><span class="s2">.</span><span class="s1">typography</span><span class="s2">.</span><span class="s1">bodyMedium</span><span class="s2">)</span>
+            <span class="s1">Text</span><span class="s2">(</span><span class="s3">&quot;₱</span><span class="s0">${</span><span class="s1">item</span><span class="s2">.</span><span class="s1">product</span><span class="s2">.</span><span class="s1">sellingPrice</span><span class="s0">}</span><span class="s3">&quot;</span><span class="s2">, </span><span class="s1">color </span><span class="s2">= </span><span class="s1">Color</span><span class="s2">.</span><span class="s1">Gray</span><span class="s2">, </span><span class="s1">style </span><span class="s2">= </span><span class="s1">MaterialTheme</span><span class="s2">.</span><span class="s1">typography</span><span class="s2">.</span><span class="s1">bodySmall</span><span class="s2">)</span>
+        <span class="s2">}</span>
+
+        <span class="s4">// Quantity Controls</span>
+        <span class="s1">Row</span><span class="s2">(</span><span class="s1">Modifier</span><span class="s2">.</span><span class="s1">weight</span><span class="s2">(</span><span class="s5">1.5f</span><span class="s2">), </span><span class="s1">verticalAlignment </span><span class="s2">= </span><span class="s1">Alignment</span><span class="s2">.</span><span class="s1">CenterVertically</span><span class="s2">, </span><span class="s1">horizontalArrangement </span><span class="s2">= </span><span class="s1">Arrangement</span><span class="s2">.</span><span class="s1">Center</span><span class="s2">) {</span>
+            <span class="s1">IconButton</span><span class="s2">(</span><span class="s1">onClick </span><span class="s2">= { </span><span class="s1">onUpdateQty</span><span class="s2">(</span><span class="s1">item</span><span class="s2">.</span><span class="s1">quantity </span><span class="s2">- </span><span class="s5">1</span><span class="s2">) }, </span><span class="s1">modifier </span><span class="s2">= </span><span class="s1">Modifier</span><span class="s2">.</span><span class="s1">size</span><span class="s2">(</span><span class="s5">30</span><span class="s2">.</span><span class="s1">dp</span><span class="s2">)) {</span>
+                <span class="s1">Icon</span><span class="s2">(</span><span class="s1">Icons</span><span class="s2">.</span><span class="s1">Default</span><span class="s2">.</span><span class="s1">Remove</span><span class="s2">, </span><span class="s0">null</span><span class="s2">)</span>
+            <span class="s2">}</span>
+
+            <span class="s1">OutlinedTextField</span><span class="s2">(</span>
+                <span class="s1">value </span><span class="s2">= </span><span class="s1">qtyText</span><span class="s2">,</span>
+                <span class="s1">onValueChange </span><span class="s2">= {</span>
+                    <span class="s1">qtyText </span><span class="s2">= </span><span class="s1">it</span>
+                    <span class="s0">val </span><span class="s1">newQty </span><span class="s2">= </span><span class="s1">it</span><span class="s2">.</span><span class="s1">toIntOrNull</span><span class="s2">()</span>
+                    <span class="s0">if </span><span class="s2">(</span><span class="s1">newQty </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">) </span><span class="s1">onUpdateQty</span><span class="s2">(</span><span class="s1">newQty</span><span class="s2">)</span>
+                <span class="s2">},</span>
+                <span class="s1">modifier </span><span class="s2">= </span><span class="s1">Modifier</span><span class="s2">.</span><span class="s1">width</span><span class="s2">(</span><span class="s5">60</span><span class="s2">.</span><span class="s1">dp</span><span class="s2">).</span><span class="s1">height</span><span class="s2">(</span><span class="s5">50</span><span class="s2">.</span><span class="s1">dp</span><span class="s2">),</span>
+                <span class="s1">keyboardOptions </span><span class="s2">= </span><span class="s1">KeyboardOptions</span><span class="s2">(</span><span class="s1">keyboardType </span><span class="s2">= </span><span class="s1">KeyboardType</span><span class="s2">.</span><span class="s1">Number</span><span class="s2">),</span>
+                <span class="s1">textStyle </span><span class="s2">= </span><span class="s1">LocalTextStyle</span><span class="s2">.</span><span class="s1">current</span><span class="s2">.</span><span class="s1">copy</span><span class="s2">(</span><span class="s1">textAlign </span><span class="s2">= </span><span class="s1">TextAlign</span><span class="s2">.</span><span class="s1">Center</span><span class="s2">),</span>
+                <span class="s1">singleLine </span><span class="s2">= </span><span class="s0">true</span>
+            <span class="s2">)</span>
+
+            <span class="s1">IconButton</span><span class="s2">(</span><span class="s1">onClick </span><span class="s2">= { </span><span class="s1">onUpdateQty</span><span class="s2">(</span><span class="s1">item</span><span class="s2">.</span><span class="s1">quantity </span><span class="s2">+ </span><span class="s5">1</span><span class="s2">) }, </span><span class="s1">modifier </span><span class="s2">= </span><span class="s1">Modifier</span><span class="s2">.</span><span class="s1">size</span><span class="s2">(</span><span class="s5">30</span><span class="s2">.</span><span class="s1">dp</span><span class="s2">)) {</span>
+                <span class="s1">Icon</span><span class="s2">(</span><span class="s1">Icons</span><span class="s2">.</span><span class="s1">Default</span><span class="s2">.</span><span class="s1">Add</span><span class="s2">, </span><span class="s0">null</span><span class="s2">)</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+
+        <span class="s4">// Trash</span>
+        <span class="s1">IconButton</span><span class="s2">(</span><span class="s1">onClick </span><span class="s2">= </span><span class="s1">onRemove</span><span class="s2">, </span><span class="s1">modifier </span><span class="s2">= </span><span class="s1">Modifier</span><span class="s2">.</span><span class="s1">weight</span><span class="s2">(</span><span class="s5">0.3f</span><span class="s2">)) {</span>
+            <span class="s1">Icon</span><span class="s2">(</span><span class="s1">Icons</span><span class="s2">.</span><span class="s1">Default</span><span class="s2">.</span><span class="s1">Delete</span><span class="s2">, </span><span class="s0">null</span><span class="s2">, </span><span class="s1">tint </span><span class="s2">= </span><span class="s1">ErrorRed</span><span class="s2">)</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+<span class="s2">}</span></pre>
+</body>
+</html>
