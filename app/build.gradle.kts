@@ -77,4 +77,6 @@ dependencies {
     // Firebase
     implementation(platform("com.google.firebase:firebase-bom:34.9.0")) //BoM
     implementation("com.google.firebase:firebase-analytics") // Analytics (if needed)
+    implementation("com.google.firebase:firebase-database-ktx") // Realtime Database
+    implementation("com.google.firebase:firebase-auth-ktx") // Auth (if needed)
 }
