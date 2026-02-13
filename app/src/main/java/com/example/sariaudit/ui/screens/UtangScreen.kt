@@ -37,14 +37,11 @@ fun UtangScreen(navController: NavController, viewModel: MainViewModel) {
 
     var showAddDialog by remember { mutableStateOf(false) }
     var selectedUtangForEdit by remember { mutableStateOf<Utang?>(null) }
-    var selectedTab by remember { mutableStateOf(0) } // 0: Unpaid, 1: Paid
-    var searchQuery by remember { mutableStateOf("") } // SEARCH STATE
-
-    // Sort
+    var selectedTab by remember { mutableStateOf(0) }
+    var searchQuery by remember { mutableStateOf("") }
     var sortOption by remember { mutableStateOf(UtangSort.AmountHighLow) }
     var sortMenuExpanded by remember { mutableStateOf(false) }
 
-    // FILTER LOGIC: Search + Tab + Sort
     val filteredList = utangList
         .filter {
             val matchesTab = if (selectedTab == 0) !it.isPaid else it.isPaid
@@ -77,11 +74,8 @@ fun UtangScreen(navController: NavController, viewModel: MainViewModel) {
                         Box {
                             IconButton(onClick = { sortMenuExpanded = true }) { Icon(Icons.Default.Sort, null, tint = Color.White) }
                             DropdownMenu(expanded = sortMenuExpanded, onDismissRequest = { sortMenuExpanded = false }) {
-                                DropdownMenuItem(text = { Text("Amount (High to Low)") }, onClick = { sortOption = UtangSort.AmountHighLow; sortMenuExpanded = false })
-                                DropdownMenuItem(text = { Text("Amount (Low to High)") }, onClick = { sortOption = UtangSort.AmountLowHigh; sortMenuExpanded = false })
-                                Divider()
+                                DropdownMenuItem(text = { Text("Amt (High-Low)") }, onClick = { sortOption = UtangSort.AmountHighLow; sortMenuExpanded = false })
                                 DropdownMenuItem(text = { Text("Name (A-Z)") }, onClick = { sortOption = UtangSort.NameAsc; sortMenuExpanded = false })
-                                DropdownMenuItem(text = { Text("Date (Newest)") }, onClick = { sortOption = UtangSort.NewestFirst; sortMenuExpanded = false })
                             }
                         }
                     }
@@ -97,19 +91,14 @@ fun UtangScreen(navController: NavController, viewModel: MainViewModel) {
         }
     ) { padding ->
         Column(Modifier.padding(padding).padding(16.dp)) {
-
-            // SEARCH BAR
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("Search Customer Name...") },
-                leadingIcon = { Icon(Icons.Default.Search, null) },
-                singleLine = true
+                placeholder = { Text("Search Customer...") },
+                leadingIcon = { Icon(Icons.Default.Search, null) }
             )
-
             Spacer(Modifier.height(8.dp))
-
             LazyColumn {
                 items(filteredList) { item ->
                     UtangItem(item) { selectedUtangForEdit = item }
@@ -138,93 +127,46 @@ fun UtangScreen(navController: NavController, viewModel: MainViewModel) {
 
 @Composable
 fun UtangItem(utang: Utang, onClick: () -> Unit) {
-    Card(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp).clickable { onClick() },
-        elevation = CardDefaults.cardElevation(2.dp)
-    ) {
+    Card(Modifier.fillMaxWidth().padding(vertical = 4.dp).clickable { onClick() }, elevation = CardDefaults.cardElevation(2.dp)) {
         Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
-                Text(utang.customerName, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text(utang.customerName, fontWeight = FontWeight.Bold)
                 if (utang.notes.isNotEmpty()) Text(utang.notes, style = MaterialTheme.typography.bodySmall, color = Color.Gray)
             }
             Column(horizontalAlignment = Alignment.End) {
-                Text("₱${utang.amount}", color = if (utang.isPaid) SuccessGreen else ErrorRed, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                if (utang.isPaid) Text("PAID", color = SuccessGreen, style = MaterialTheme.typography.labelSmall)
-                else Text("Tap to Manage", color = Color.Blue, style = MaterialTheme.typography.labelSmall)
+                Text("₱${utang.amount}", color = if (utang.isPaid) SuccessGreen else ErrorRed, fontWeight = FontWeight.Bold)
+                Text(if (utang.isPaid) "PAID" else "Tap to Manage", style = MaterialTheme.typography.labelSmall)
             }
         }
     }
 }
 
 @Composable
-fun ManageUtangDialog(
-    utang: Utang,
-    history: List<UtangTransaction>,
-    onDismiss: () -> Unit,
-    onModify: (Double, Boolean) -> Unit
-) {
+fun ManageUtangDialog(utang: Utang, history: List<UtangTransaction>, onDismiss: () -> Unit, onModify: (Double, Boolean) -> Unit) {
     var amountText by remember { mutableStateOf("") }
     val dateFormatter = SimpleDateFormat("MMM dd", Locale.getDefault())
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = {
-            Column {
-                Text(utang.customerName, fontWeight = FontWeight.Bold)
-                Text("Current Balance: ₱${utang.amount}", style = MaterialTheme.typography.bodyMedium, color = if(utang.amount > 0) ErrorRed else SuccessGreen)
-            }
-        },
+        title = { Text(utang.customerName) },
         text = {
             Column {
-                OutlinedTextField(
-                    value = amountText,
-                    onValueChange = { amountText = it },
-                    label = { Text("Enter Amount") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier.fillMaxWidth()
-                )
+                Text("Balance: ₱${utang.amount}", color = if(utang.amount>0) ErrorRed else SuccessGreen)
+                Spacer(Modifier.height(8.dp))
+                OutlinedTextField(value = amountText, onValueChange = { amountText = it }, label = { Text("Amount") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
                 Spacer(Modifier.height(16.dp))
-
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Button(
-                        onClick = {
-                            val amt = amountText.toDoubleOrNull() ?: 0.0
-                            if (amt > 0) onModify(amt, false) // Add Debt
-                        },
-                        modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.buttonColors(containerColor = ErrorRed)
-                    ) {
-                        Text("Add Debt")
-                    }
-                    Button(
-                        onClick = {
-                            val amt = amountText.toDoubleOrNull() ?: 0.0
-                            if (amt > 0) onModify(amt, true) // Pay
-                        },
-                        modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.buttonColors(containerColor = SuccessGreen)
-                    ) {
-                        Text("Pay")
-                    }
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Button(onClick = { onModify(amountText.toDoubleOrNull()?:0.0, false) }, colors = ButtonDefaults.buttonColors(containerColor = ErrorRed), modifier = Modifier.weight(1f)) { Text("Add Debt") }
+                    Button(onClick = { onModify(amountText.toDoubleOrNull()?:0.0, true) }, colors = ButtonDefaults.buttonColors(containerColor = SuccessGreen), modifier = Modifier.weight(1f)) { Text("Pay") }
                 }
-
                 Divider(Modifier.padding(vertical = 16.dp))
-
-                Text("Transaction History", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+                Text("History", fontWeight = FontWeight.Bold)
                 LazyColumn(Modifier.height(150.dp)) {
                     items(history) { trans ->
-                        Row(
-                            Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text(dateFormatter.format(Date(trans.date)), style = MaterialTheme.typography.bodySmall, color = Color.Gray)
-                            Text(
-                                "${if(trans.type == "PAYMENT") "Paid" else "Added"} ₱${trans.amount}",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = if(trans.type == "PAYMENT") SuccessGreen else ErrorRed
-                            )
+                        Row(Modifier.fillMaxWidth().padding(vertical = 4.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Text(dateFormatter.format(Date(trans.date)), style = MaterialTheme.typography.bodySmall)
+                            Text("${if(trans.type == "PAYMENT") "Paid" else "Added"} ₱${trans.amount}", color = if(trans.type == "PAYMENT") SuccessGreen else ErrorRed, style = MaterialTheme.typography.bodySmall)
                         }
-                        Divider(color = Color.LightGray.copy(alpha = 0.5f))
                     }
                 }
             }
@@ -239,22 +181,18 @@ fun AddUtangDialog(onDismiss: () -> Unit, onConfirm: (Utang) -> Unit) {
     var name by remember { mutableStateOf("") }
     var amount by remember { mutableStateOf("") }
     var notes by remember { mutableStateOf("") }
-
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("New Debt Record") },
+        title = { Text("New Debt") },
         text = {
             Column {
-                TextField(value = name, onValueChange = { name = it }, label = { Text("Customer Name") })
-                TextField(value = amount, onValueChange = { amount = it }, label = { Text("Initial Amount") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
-                TextField(value = notes, onValueChange = { notes = it }, label = { Text("Notes (Optional)") })
+                TextField(value = name, onValueChange = { name = it }, label = { Text("Name") })
+                TextField(value = amount, onValueChange = { amount = it }, label = { Text("Amount") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
+                TextField(value = notes, onValueChange = { notes = it }, label = { Text("Notes") })
             }
         },
         confirmButton = {
-            Button(onClick = {
-                val u = Utang(customerName = name, amount = amount.toDoubleOrNull() ?: 0.0, notes = notes)
-                onConfirm(u)
-            }) { Text("Save") }
+            Button(onClick = { onConfirm(Utang(customerName = name, amount = amount.toDoubleOrNull()?:0.0, notes = notes)) }) { Text("Save") }
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
     )

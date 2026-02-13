@@ -1,13 +1,16 @@
 package com.example.sariaudit.ui.screens
 
-import androidx.compose.foundation.background
+//import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,14 +35,14 @@ fun InventoryScreen(navController: NavController, viewModel: MainViewModel) {
     val products by viewModel.allProducts.collectAsState()
     val role by viewModel.userRole.collectAsState()
 
+    // Dialog States
     var showAddDialog by remember { mutableStateOf(false) }
-    var searchQuery by remember { mutableStateOf("") }
-
-    // States for Popups
+    var productToEdit by remember { mutableStateOf<Product?>(null) } // NEW: Edit State
     var productToDelete by remember { mutableStateOf<Product?>(null) }
     var productToRestock by remember { mutableStateOf<Product?>(null) }
 
-    // Sorting State
+    // Search & Sort States
+    var searchQuery by remember { mutableStateOf("") }
     var sortOption by remember { mutableStateOf(ProductSort.NameAsc) }
     var sortMenuExpanded by remember { mutableStateOf(false) }
 
@@ -64,51 +67,34 @@ fun InventoryScreen(navController: NavController, viewModel: MainViewModel) {
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = DeepOrange),
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, null, tint = Color.White)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, null, tint = Color.White)
                     }
                 },
                 actions = {
                     // SORT BUTTON
                     Box {
                         IconButton(onClick = { sortMenuExpanded = true }) {
-                            Icon(Icons.Default.Sort, contentDescription = "Sort", tint = Color.White)
+                            Icon(Icons.AutoMirrored.Filled.Sort, contentDescription = "Sort", tint = Color.White)
                         }
                         DropdownMenu(
                             expanded = sortMenuExpanded,
                             onDismissRequest = { sortMenuExpanded = false }
                         ) {
-                            DropdownMenuItem(
-                                text = { Text("Name (A-Z)") },
-                                onClick = { sortOption = ProductSort.NameAsc; sortMenuExpanded = false }
-                            )
-                            DropdownMenuItem(
-                                text = { Text("Name (Z-A)") },
-                                onClick = { sortOption = ProductSort.NameDesc; sortMenuExpanded = false }
-                            )
+                            DropdownMenuItem(text = { Text("Name (A-Z)") }, onClick = { sortOption = ProductSort.NameAsc; sortMenuExpanded = false })
+                            DropdownMenuItem(text = { Text("Name (Z-A)") }, onClick = { sortOption = ProductSort.NameDesc; sortMenuExpanded = false })
                             Divider()
-                            DropdownMenuItem(
-                                text = { Text("Quantity (High to Low)") },
-                                onClick = { sortOption = ProductSort.QtyHighLow; sortMenuExpanded = false }
-                            )
-                            DropdownMenuItem(
-                                text = { Text("Quantity (Low to High)") },
-                                onClick = { sortOption = ProductSort.QtyLowHigh; sortMenuExpanded = false }
-                            )
+                            DropdownMenuItem(text = { Text("Quantity (High to Low)") }, onClick = { sortOption = ProductSort.QtyHighLow; sortMenuExpanded = false })
+                            DropdownMenuItem(text = { Text("Quantity (Low to High)") }, onClick = { sortOption = ProductSort.QtyLowHigh; sortMenuExpanded = false })
                             Divider()
-                            DropdownMenuItem(
-                                text = { Text("Price (High to Low)") },
-                                onClick = { sortOption = ProductSort.PriceHighLow; sortMenuExpanded = false }
-                            )
-                            DropdownMenuItem(
-                                text = { Text("Price (Low to High)") },
-                                onClick = { sortOption = ProductSort.PriceLowHigh; sortMenuExpanded = false }
-                            )
+                            DropdownMenuItem(text = { Text("Price (High to Low)") }, onClick = { sortOption = ProductSort.PriceHighLow; sortMenuExpanded = false })
+                            DropdownMenuItem(text = { Text("Price (Low to High)") }, onClick = { sortOption = ProductSort.PriceLowHigh; sortMenuExpanded = false })
                         }
                     }
                 }
             )
         },
         floatingActionButton = {
+            // Add Button (Owner/Admin Only usually, or allow Assistant to add? We'll allow all based on your previous code)
             FloatingActionButton(onClick = { showAddDialog = true }, containerColor = DeepOrange) {
                 Icon(Icons.Default.Add, null, tint = Color.White)
             }
@@ -134,19 +120,43 @@ fun InventoryScreen(navController: NavController, viewModel: MainViewModel) {
                         product = product,
                         role = role,
                         onDeleteClick = { productToDelete = product },
-                        onRestockClick = { productToRestock = product }
+                        onRestockClick = { productToRestock = product },
+                        onEditClick = { productToEdit = product } // Pass Edit Action
                     )
                 }
             }
         }
     }
 
-    // DIALOGS
+    // --- DIALOGS ---
+
+    // 1. ADD DIALOG
     if (showAddDialog) {
-        ProductDialog(onDismiss = { showAddDialog = false }) { p -> viewModel.addProduct(p); showAddDialog = false }
+        ProductFormDialog(
+            title = "Add Product",
+            initialProduct = null,
+            onDismiss = { showAddDialog = false },
+            onConfirm = { newProduct ->
+                viewModel.addProduct(newProduct)
+                showAddDialog = false
+            }
+        )
     }
 
-    // DELETE CONFIRMATION DIALOG
+    // 2. EDIT DIALOG
+    productToEdit?.let { product ->
+        ProductFormDialog(
+            title = "Edit Product Details",
+            initialProduct = product,
+            onDismiss = { productToEdit = null },
+            onConfirm = { updatedProduct ->
+                viewModel.updateProduct(updatedProduct)
+                productToEdit = null
+            }
+        )
+    }
+
+    // 3. DELETE CONFIRMATION
     productToDelete?.let { product ->
         AlertDialog(
             onDismissRequest = { productToDelete = null },
@@ -169,7 +179,7 @@ fun InventoryScreen(navController: NavController, viewModel: MainViewModel) {
         )
     }
 
-    // RESTOCK DIALOG
+    // 4. RESTOCK DIALOG
     productToRestock?.let { product ->
         var quantityToAdd by remember { mutableStateOf("") }
         AlertDialog(
@@ -215,7 +225,8 @@ fun ProductItem(
     product: Product,
     role: UserRole,
     onDeleteClick: () -> Unit,
-    onRestockClick: () -> Unit
+    onRestockClick: () -> Unit,
+    onEditClick: () -> Unit
 ) {
     val isLowStock = product.quantity <= product.lowStockThreshold
     Card(
@@ -237,8 +248,11 @@ fun ProductItem(
                     Icon(Icons.Default.AddBox, null, tint = SuccessGreen)
                 }
 
-                // Delete Button (Admin Only)
-                if (role == UserRole.ADMIN) {
+                // Edit & Delete (Owner/Admin Only)
+                if (role == UserRole.OWNER || role == UserRole.ADMIN) {
+                    IconButton(onClick = onEditClick) {
+                        Icon(Icons.Default.Edit, null, tint = DeepOrange)
+                    }
                     IconButton(onClick = onDeleteClick) {
                         Icon(Icons.Default.Delete, null, tint = ErrorRed)
                     }
@@ -248,31 +262,80 @@ fun ProductItem(
     }
 }
 
+// Reusable Dialog for Adding AND Editing
 @Composable
-fun ProductDialog(onDismiss: () -> Unit, onConfirm: (Product) -> Unit) {
-    var name by remember { mutableStateOf("") }
-    var price by remember { mutableStateOf("") }
-    var cost by remember { mutableStateOf("") }
-    var qty by remember { mutableStateOf("") }
+fun ProductFormDialog(
+    title: String,
+    initialProduct: Product?,
+    onDismiss: () -> Unit,
+    onConfirm: (Product) -> Unit
+) {
+    // Pre-fill state if editing, otherwise empty
+    var name by remember { mutableStateOf(initialProduct?.name ?: "") }
+    var price by remember { mutableStateOf(initialProduct?.sellingPrice?.toString() ?: "") }
+    var cost by remember { mutableStateOf(initialProduct?.costPrice?.toString() ?: "") }
+    var qty by remember { mutableStateOf(initialProduct?.quantity?.toString() ?: "") }
+    var threshold by remember { mutableStateOf(initialProduct?.lowStockThreshold?.toString() ?: "10") }
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Add Product") },
+        title = { Text(title) },
         text = {
-            Column {
-                TextField(value = name, onValueChange = { name = it }, label = { Text("Name") })
-                TextField(value = price, onValueChange = { price = it }, label = { Text("Selling Price") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
-                TextField(value = cost, onValueChange = { cost = it }, label = { Text("Cost Price") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
-                TextField(value = qty, onValueChange = { qty = it }, label = { Text("Quantity") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("Product Name") },
+                    singleLine = true
+                )
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedTextField(
+                        value = price,
+                        onValueChange = { price = it },
+                        label = { Text("Sell Price") },
+                        modifier = Modifier.weight(1f),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        singleLine = true
+                    )
+                    OutlinedTextField(
+                        value = cost,
+                        onValueChange = { cost = it },
+                        label = { Text("Cost") },
+                        modifier = Modifier.weight(1f),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        singleLine = true
+                    )
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedTextField(
+                        value = qty,
+                        onValueChange = { qty = it },
+                        label = { Text("Quantity") },
+                        modifier = Modifier.weight(1f),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        singleLine = true
+                    )
+                    OutlinedTextField(
+                        value = threshold,
+                        onValueChange = { threshold = it },
+                        label = { Text("Low Alert") },
+                        modifier = Modifier.weight(1f),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        singleLine = true
+                    )
+                }
             }
         },
         confirmButton = {
             Button(onClick = {
+                // If editing, keep the old ID. If adding, ID is empty string (ViewModel handles generation)
                 val p = Product(
+                    id = initialProduct?.id ?: "",
                     name = name,
                     sellingPrice = price.toDoubleOrNull() ?: 0.0,
                     costPrice = cost.toDoubleOrNull() ?: 0.0,
-                    quantity = qty.toIntOrNull() ?: 0
+                    quantity = qty.toIntOrNull() ?: 0,
+                    lowStockThreshold = threshold.toIntOrNull() ?: 10
                 )
                 onConfirm(p)
             }) { Text("Save") }

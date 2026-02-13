@@ -77,6 +77,7 @@ dependencies {
     // Firebase
     implementation(platform("com.google.firebase:firebase-bom:34.9.0")) //BoM
     implementation("com.google.firebase:firebase-analytics") // Analytics (if needed)
-    implementation("com.google.firebase:firebase-database-ktx") // Realtime Database
-    implementation("com.google.firebase:firebase-auth-ktx") // Auth (if needed)
+    implementation("com.google.firebase:firebase-database") // Realtime Database
+    implementation("com.google.firebase:firebase-auth") // Auth (if needed)
+    implementation("com.google.android.gms:play-services-auth:21.0.0")
 }

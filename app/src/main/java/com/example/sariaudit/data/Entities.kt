@@ -1,15 +1,30 @@
 package com.example.sariaudit.data
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
+// --- STORE MODELS ---
 
-@Entity(tableName = "products")
+data class Store(
+    val id: String = "",
+    val name: String = "",
+    val ownerId: String = "",
+    val accessCode: String = "", // 6-digit code
+    val members: Map<String, String> = emptyMap() // Map<UserId, Role>
+)
+
+data class StoreMember(
+    val userId: String = "",
+    val name: String = "",
+    val email: String = "",
+    val role: String = "ASSISTANT" // "OWNER", "ADMIN", "ASSISTANT"
+)
+
+// --- BUSINESS MODELS (Adapted for Firebase) ---
+
 data class Product(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val name: String,
-    val costPrice: Double,
-    val sellingPrice: Double,
-    val quantity: Int,
+    val id: String = "",
+    val name: String = "",
+    val costPrice: Double = 0.0,
+    val sellingPrice: Double = 0.0,
+    val quantity: Int = 0,
     val packSize: Int = 1,
     val unit: String = "pcs",
     val category: String = "General",
@@ -17,34 +32,33 @@ data class Product(
     val lastRestocked: Long = System.currentTimeMillis()
 )
 
-@Entity(tableName = "sales")
 data class Sale(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val productId: Int,
-    val productName: String,
-    val quantitySold: Int,
-    val sellingPrice: Double,
-    val totalAmount: Double,
-    val profit: Double,
-    val timestamp: Long = System.currentTimeMillis()
+    val id: String = "",
+    val productId: String = "",
+    val productName: String = "",
+    val quantitySold: Int = 0,
+    val sellingPrice: Double = 0.0,
+    val totalAmount: Double = 0.0,
+    val profit: Double = 0.0,
+    val timestamp: Long = System.currentTimeMillis(),
+    val cashierName: String = "" // Useful to track who sold it
 )
 
-@Entity(tableName = "utang")
 data class Utang(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val customerName: String,
-    val amount: Double, // Current running balance
+    val id: String = "",
+    val customerName: String = "",
+    val amount: Double = 0.0,
     val dateCreated: Long = System.currentTimeMillis(),
     val isPaid: Boolean = false,
     val datePaid: Long? = null,
     val notes: String = ""
 )
 
-@Entity(tableName = "utang_transactions")
 data class UtangTransaction(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val utangId: Int,
-    val amount: Double,
-    val type: String, // "BORROW" or "PAYMENT"
-    val date: Long = System.currentTimeMillis()
+    val id: String = "",
+    val utangId: String = "",
+    val amount: Double = 0.0,
+    val type: String = "", // "BORROW" or "PAYMENT"
+    val date: Long = System.currentTimeMillis(),
+    val processedBy: String = ""
 )
