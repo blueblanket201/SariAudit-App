@@ -429,7 +429,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     // --- BUSINESS ACTIONS ---
 
-    fun modifyUtangBalance(utang: Utang, amount: Double, isPayment: Boolean) {
+    // 🔴 UPDATED: Added the notes parameter with a default empty string
+    fun modifyUtangBalance(utang: Utang, amount: Double, isPayment: Boolean, notes: String = "") {
         val storeId = _currentStore.value?.id ?: return
         val newAmount = if (isPayment) utang.amount - amount else utang.amount + amount
 
@@ -440,12 +441,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         )
 
         val transId = db.child("stores").child(storeId).child("utang_transactions").push().key ?: return
+
+        // 🔴 UPDATED: Passing notes into UtangTransaction
         val trans = UtangTransaction(
             id = transId,
             utangId = utang.id,
             amount = amount,
             type = if (isPayment) "PAYMENT" else "BORROW",
-            processedBy = auth.currentUser?.displayName ?: "Unknown"
+            processedBy = auth.currentUser?.displayName ?: "Unknown",
+            notes = notes
         )
 
         val updates = hashMapOf<String, Any>(

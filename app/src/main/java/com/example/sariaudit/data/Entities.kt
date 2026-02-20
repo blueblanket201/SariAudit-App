@@ -57,6 +57,7 @@ data class Utang(
 data class UtangTransaction(
     val id: String = "",
     val utangId: String = "",
+    val notes: String = "",
     val amount: Double = 0.0,
     val type: String = "", // "BORROW" or "PAYMENT"
     val date: Long = System.currentTimeMillis(),
