@@ -26,6 +26,20 @@ import java.time.Instant
 import java.time.ZoneId
 import java.util.*
 
+// Vico Imports for 2.4.3
+import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
+import com.patrykandpatrick.vico.compose.cartesian.layer.rememberColumnCartesianLayer
+import com.patrykandpatrick.vico.compose.cartesian.rememberCartesianChart
+import com.patrykandpatrick.vico.core.cartesian.axis.HorizontalAxis
+import com.patrykandpatrick.vico.core.cartesian.axis.VerticalAxis
+import com.patrykandpatrick.vico.core.cartesian.data.CartesianChartModelProducer
+import com.patrykandpatrick.vico.core.cartesian.data.columnSeries
+import com.patrykandpatrick.vico.core.cartesian.data.CartesianValueFormatter
+
+// FIXED: Explicitly importing the Compose extension functions for the axes
+import com.patrykandpatrick.vico.compose.cartesian.axis.rememberBottom
+import com.patrykandpatrick.vico.compose.cartesian.axis.rememberStart
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AnalyticsScreen(navController: NavController, viewModel: MainViewModel) {
@@ -141,12 +155,10 @@ fun DailyAnalyticsView(sales: List<Sale>) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WeeklyAnalyticsView(sales: List<Sale>) {
-    // 1. State for the selected range (Default: Last 7 days)
     var startDateMillis by remember { mutableStateOf(System.currentTimeMillis() - 6 * 24 * 60 * 60 * 1000L) }
     var endDateMillis by remember { mutableStateOf(System.currentTimeMillis()) }
     var showRangePicker by remember { mutableStateOf(false) }
 
-    // 2. Filter sales within the selected range
     val weeklySales = sales.filter { it.timestamp in startDateMillis..endDateMillis }
     val totalRevenue = weeklySales.sumOf { it.totalAmount }
     val totalProfit = weeklySales.sumOf { it.profit }
@@ -158,7 +170,6 @@ fun WeeklyAnalyticsView(sales: List<Sale>) {
     val rangeFormatter = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
 
     Column(Modifier.fillMaxSize().background(OffWhite)) {
-        // 3. Weekly Date Range Header
         Surface(color = Color.White, shadowElevation = 2.dp, modifier = Modifier.fillMaxWidth()) {
             Row(
                 Modifier.padding(16.dp),
@@ -203,6 +214,21 @@ fun WeeklyAnalyticsView(sales: List<Sale>) {
                 }
             }
 
+            // === VICO CHART INTEGRATION ===
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    elevation = CardDefaults.cardElevation(2.dp)
+                ) {
+                    Column(Modifier.padding(16.dp)) {
+                        Text("Revenue by Day", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        WeeklyRevenueChart(weeklySales = weeklySales)
+                    }
+                }
+            }
+            // ====================================
+
             item { Text("Top Selling Items", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold) }
 
             if (topProducts.isEmpty()) {
@@ -227,7 +253,6 @@ fun WeeklyAnalyticsView(sales: List<Sale>) {
         }
     }
 
-    // 4. Date Range Picker Dialog (Shows the 7-day span visually)
     if (showRangePicker) {
         val dateRangePickerState = rememberDateRangePickerState(
             initialSelectedStartDateMillis = startDateMillis,
@@ -274,7 +299,6 @@ fun TransactionRow(sale: Sale, formatter: SimpleDateFormat) {
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Time Icon
             Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(end = 12.dp)) {
                 Text(
                     formatter.format(Date(sale.timestamp)),
@@ -284,13 +308,11 @@ fun TransactionRow(sale: Sale, formatter: SimpleDateFormat) {
                 )
             }
 
-            // Details
             Column(modifier = Modifier.weight(1f)) {
                 Text(sale.productName, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodyMedium)
                 Text("Qty: ${sale.quantitySold}", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
             }
 
-            // Amount
             Column(horizontalAlignment = Alignment.End) {
                 Text(
                     "+ ₱${sale.totalAmount}",
@@ -298,7 +320,6 @@ fun TransactionRow(sale: Sale, formatter: SimpleDateFormat) {
                     color = SuccessGreen,
                     style = MaterialTheme.typography.bodyMedium
                 )
-                // Optional: Show profit in small text
                 Text(
                     "(₱${sale.profit.toInt()} profit)",
                     style = MaterialTheme.typography.labelSmall,
@@ -309,3 +330,92 @@ fun TransactionRow(sale: Sale, formatter: SimpleDateFormat) {
     }
 }
 
+// === NEW VICO CHART COMPOSABLE (v2.4.3) ===
+@Composable
+fun WeeklyRevenueChart(weeklySales: List<Sale>) {
+    val modelProducer = remember { CartesianChartModelProducer() }
+
+    LaunchedEffect(weeklySales) {
+        val salesByDay = FloatArray(7) { 0f }
+
+        weeklySales.forEach { sale ->
+            val calendar = Calendar.getInstance().apply { timeInMillis = sale.timestamp }
+            val dayIndex = calendar.get(Calendar.DAY_OF_WEEK) - 1
+            salesByDay[dayIndex] += sale.totalAmount.toFloat()
+        }
+
+        modelProducer.runTransaction {
+            columnSeries {
+                series(salesByDay.toList())
+            }
+        }
+    }
+
+    // Custom Formatter to show Mon, Tue, Wed, etc. on the X-axis
+    val daysOfWeekFormatter = CartesianValueFormatter { _, x, _ ->
+        val days = arrayOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")
+        days.getOrElse(x.toInt()) { "" }
+    }
+
+    CartesianChartHost(
+        chart = rememberCartesianChart(
+            rememberColumnCartesianLayer(),
+            startAxis = VerticalAxis.rememberStart(),
+            bottomAxis = HorizontalAxis.rememberBottom(valueFormatter = daysOfWeekFormatter),
+        ),
+        modelProducer = modelProducer,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(200.dp)
+            .padding(top = 16.dp)
+    )
+}
+
+@Composable
+fun HourlyRevenueChart(dailySales: List<Sale>) {
+    val modelProducer = remember { CartesianChartModelProducer() }
+
+    LaunchedEffect(dailySales) {
+        // Create an array for 24 hours (0 to 23)
+        val salesByHour = FloatArray(24) { 0f }
+
+        dailySales.forEach { sale ->
+            val calendar = Calendar.getInstance().apply { timeInMillis = sale.timestamp }
+            val hourIndex = calendar.get(Calendar.HOUR_OF_DAY) // 0-23 format
+            salesByHour[hourIndex] += sale.totalAmount.toFloat()
+        }
+
+        modelProducer.runTransaction {
+            columnSeries {
+                series(salesByHour.toList())
+            }
+        }
+    }
+
+    // Custom Formatter to show 12 AM, 6 AM, 12 PM, etc. on the X-axis
+    val hourFormatter = CartesianValueFormatter { _, x, _ ->
+        val hour = x.toInt()
+        when {
+            // Show fewer labels to prevent crowding, adjust logic as needed
+            hour == 0 -> "12 AM"
+            hour == 6 -> "6 AM"
+            hour == 12 -> "12 PM"
+            hour == 18 -> "6 PM"
+            hour % 6 == 0 -> "$hour" // Fallback for safety
+            else -> "" // Hide in-between labels to keep the axis clean
+        }
+    }
+
+    CartesianChartHost(
+        chart = rememberCartesianChart(
+            rememberColumnCartesianLayer(),
+            startAxis = VerticalAxis.rememberStart(),
+            bottomAxis = HorizontalAxis.rememberBottom(valueFormatter = hourFormatter),
+        ),
+        modelProducer = modelProducer,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(200.dp)
+            .padding(top = 16.dp)
+    )
+}
