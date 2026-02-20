@@ -8,9 +8,7 @@ plugins {
 
 android {
     namespace = "com.example.sariaudit"
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.sariaudit"
@@ -35,11 +33,14 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    kotlinOptions {
-        jvmTarget = "11"
-    }
     buildFeatures {
         compose = true
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11
     }
 }
 
@@ -80,4 +81,10 @@ dependencies {
     implementation("com.google.firebase:firebase-database") // Realtime Database
     implementation("com.google.firebase:firebase-auth") // Auth (if needed)
     implementation("com.google.android.gms:play-services-auth:21.0.0")
+
+    //Vico (for graphs and charts and etc)
+    val vicoVersion = "2.4.3"
+    implementation("com.patrykandpatrick.vico:compose:$vicoVersion")
+    implementation("com.patrykandpatrick.vico:compose-m3:$vicoVersion")
+    implementation("com.patrykandpatrick.vico:core:$vicoVersion")
 }
