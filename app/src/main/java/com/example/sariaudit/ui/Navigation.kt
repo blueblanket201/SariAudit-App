@@ -18,15 +18,16 @@ import com.example.sariaudit.ui.screens.UtangScreen
 import com.example.sariaudit.ui.screens.AnalyticsScreen
 import com.example.sariaudit.ui.screens.AboutScreen
 import com.example.sariaudit.ui.screens.StoreSelectionScreen
+import androidx.compose.runtime.collectAsState
 
 @Composable
 fun AppNavigation(viewModel: MainViewModel) {
     val navController = rememberNavController()
     val userRole by viewModel.userRole.collectAsState()
     val currentStore by viewModel.currentStore.collectAsState()
+    val currentUser by viewModel.currentUser.collectAsState()
 
-    // Redirect logic: If logged in but no store selected, go to Store Select
-    val startDest = if (viewModel.currentUser.value != null) {
+    val startDest = if (currentUser != null) {
         if (currentStore != null) "dashboard" else "store_select"
     } else "login"
 

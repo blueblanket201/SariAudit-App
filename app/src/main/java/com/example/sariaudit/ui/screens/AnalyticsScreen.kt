@@ -96,7 +96,7 @@ fun AnalyticsScreen(navController: NavController, viewModel: MainViewModel) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DailyAnalyticsView(sales: List<Sale>) {
-    var selectedDateMillis by remember { mutableStateOf(System.currentTimeMillis()) }
+    var selectedDateMillis by remember { mutableLongStateOf(System.currentTimeMillis()) }
     var showDatePicker by remember { mutableStateOf(false) }
 
     val zoneId = ZoneId.systemDefault()
@@ -155,8 +155,8 @@ fun DailyAnalyticsView(sales: List<Sale>) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WeeklyAnalyticsView(sales: List<Sale>) {
-    var startDateMillis by remember { mutableStateOf(System.currentTimeMillis() - 6 * 24 * 60 * 60 * 1000L) }
-    var endDateMillis by remember { mutableStateOf(System.currentTimeMillis()) }
+    var startDateMillis by remember { mutableLongStateOf(System.currentTimeMillis() - 6 * 24 * 60 * 60 * 1000L) }
+    var endDateMillis by remember { mutableLongStateOf(System.currentTimeMillis()) }
     var showRangePicker by remember { mutableStateOf(false) }
 
     val weeklySales = sales.filter { it.timestamp in startDateMillis..endDateMillis }

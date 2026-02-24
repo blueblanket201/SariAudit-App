@@ -299,7 +299,69 @@ fun DashboardScreen(navController: NavController, viewModel: MainViewModel) {
             confirmButton = { TextButton(onClick = { showLowStockDialog = false }) { Text("Close") } }
         )
     }
+
+    // --- ROLE MANAGER DIALOG ---
+    if (showRoleManagerDialog) {
+        val members by viewModel.currentMembers.collectAsState()
+
+        AlertDialog(
+            onDismissRequest = { showRoleManagerDialog = false },
+            title = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.People, null, tint = DeepOrange)
+                    Spacer(Modifier.width(8.dp))
+                    Text("Manage Team")
+                }
+            },
+            text = {
+                if (members.isEmpty()) {
+                    Text("Loading members...", color = Color.Gray)
+                } else {
+                    LazyColumn(modifier = Modifier.heightIn(max = 400.dp)) {
+                        items(members) { member ->
+                            Column(Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+                                Text(member.name, fontWeight = FontWeight.Bold)
+                                Text(member.email, style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+
+                                // Prevent the owner from deleting or changing their own role
+                                if (member.role == "OWNER") {
+                                    Text("Store Owner", color = DeepOrange, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 4.dp))
+                                } else {
+                                    Row(
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        modifier = Modifier.fillMaxWidth().padding(top = 4.dp)
+                                    ) {
+                                        var expanded by remember { mutableStateOf(false) }
+                                        Box {
+                                            OutlinedButton(onClick = { expanded = true }, modifier = Modifier.height(36.dp)) {
+                                                Text(member.role, style = MaterialTheme.typography.labelSmall)
+                                                Icon(Icons.Default.ArrowDropDown, null)
+                                            }
+                                            DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                                                DropdownMenuItem(text = { Text("ADMIN") }, onClick = { viewModel.updateMemberRole(member.uid, "ADMIN"); expanded = false })
+                                                DropdownMenuItem(text = { Text("ASSISTANT") }, onClick = { viewModel.updateMemberRole(member.uid, "ASSISTANT"); expanded = false })
+                                            }
+                                        }
+                                        IconButton(onClick = { viewModel.removeMember(member.uid) }) {
+                                            Icon(Icons.Default.Delete, null, tint = ErrorRed)
+                                        }
+                                    }
+                                }
+                                Divider(modifier = Modifier.padding(top = 8.dp))
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showRoleManagerDialog = false }) { Text("Close") }
+            }
+        )
+    }
 }
+
+
 
 // --- DASHBOARD COMPONENTS ---
 
