@@ -29,11 +29,13 @@ import java.util.*
 // Vico Imports for 2.4.3
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
 import com.patrykandpatrick.vico.compose.cartesian.layer.rememberColumnCartesianLayer
+import com.patrykandpatrick.vico.compose.cartesian.layer.rememberLineCartesianLayer
 import com.patrykandpatrick.vico.compose.cartesian.rememberCartesianChart
 import com.patrykandpatrick.vico.core.cartesian.axis.HorizontalAxis
 import com.patrykandpatrick.vico.core.cartesian.axis.VerticalAxis
 import com.patrykandpatrick.vico.core.cartesian.data.CartesianChartModelProducer
 import com.patrykandpatrick.vico.core.cartesian.data.columnSeries
+import com.patrykandpatrick.vico.core.cartesian.data.lineSeries
 import com.patrykandpatrick.vico.core.cartesian.data.CartesianValueFormatter
 
 // FIXED: Explicitly importing the Compose extension functions for the axes
@@ -125,6 +127,24 @@ fun DailyAnalyticsView(sales: List<Sale>) {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     MetricCard("Revenue", "₱%.2f".format(totalRevenue), Icons.Default.AttachMoney, DeepOrange, Modifier.weight(1f))
                     MetricCard("Profit", "₱%.2f".format(totalProfit), Icons.Default.TrendingUp, TealGreen, Modifier.weight(1f))
+                }
+            }
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    elevation = CardDefaults.cardElevation(2.dp)
+                ) {
+                    Column(Modifier.padding(16.dp)) {
+                        Text("Revenue vs Profit by Hour", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        if (filteredSales.isEmpty()) {
+                            Box(modifier = Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
+                                Text("No data for this day", color = Color.Gray)
+                            }
+                        } else {
+                            HourlyRevenueChart(dailySales = filteredSales)
+                        }
+                    }
                 }
             }
             item { Text("Transactions", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold) }
@@ -376,46 +396,33 @@ fun HourlyRevenueChart(dailySales: List<Sale>) {
     val modelProducer = remember { CartesianChartModelProducer() }
 
     LaunchedEffect(dailySales) {
-        // Create an array for 24 hours (0 to 23)
-        val salesByHour = FloatArray(24) { 0f }
-
-        dailySales.forEach { sale ->
-            val calendar = Calendar.getInstance().apply { timeInMillis = sale.timestamp }
-            val hourIndex = calendar.get(Calendar.HOUR_OF_DAY) // 0-23 format
-            salesByHour[hourIndex] += sale.totalAmount.toFloat()
+        val hours = (0..23).toList()
+        val revenueData = hours.map { hour ->
+            dailySales.filter { sale ->
+                Calendar.getInstance().apply { timeInMillis = sale.timestamp }.get(Calendar.HOUR_OF_DAY) == hour
+            }.sumOf { it.totalAmount }.toFloat()
+        }
+        val profitData = hours.map { hour ->
+            dailySales.filter { sale ->
+                Calendar.getInstance().apply { timeInMillis = sale.timestamp }.get(Calendar.HOUR_OF_DAY) == hour
+            }.sumOf { it.profit }.toFloat()
         }
 
         modelProducer.runTransaction {
-            columnSeries {
-                series(salesByHour.toList())
+            lineSeries {
+                series(revenueData)
+                series(profitData)
             }
-        }
-    }
-
-    // Custom Formatter to show 12 AM, 6 AM, 12 PM, etc. on the X-axis
-    val hourFormatter = CartesianValueFormatter { _, x, _ ->
-        val hour = x.toInt()
-        when {
-            // Show fewer labels to prevent crowding, adjust logic as needed
-            hour == 0 -> "12 AM"
-            hour == 6 -> "6 AM"
-            hour == 12 -> "12 PM"
-            hour == 18 -> "6 PM"
-            hour % 6 == 0 -> "$hour" // Fallback for safety
-            else -> "" // Hide in-between labels to keep the axis clean
         }
     }
 
     CartesianChartHost(
         chart = rememberCartesianChart(
-            rememberColumnCartesianLayer(),
+            rememberLineCartesianLayer(),
             startAxis = VerticalAxis.rememberStart(),
-            bottomAxis = HorizontalAxis.rememberBottom(valueFormatter = hourFormatter),
+            bottomAxis = HorizontalAxis.rememberBottom(),
         ),
         modelProducer = modelProducer,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(200.dp)
-            .padding(top = 16.dp)
+        modifier = Modifier.fillMaxWidth().height(200.dp)
     )
 }
