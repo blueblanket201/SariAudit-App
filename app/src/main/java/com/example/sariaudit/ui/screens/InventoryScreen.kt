@@ -203,8 +203,7 @@ fun InventoryScreen(navController: NavController, viewModel: MainViewModel) {
                     onClick = {
                         val qty = quantityToAdd.toIntOrNull() ?: 0
                         if (qty > 0) {
-                            val updatedProduct = product.copy(quantity = product.quantity + qty)
-                            viewModel.updateProduct(updatedProduct)
+                            viewModel.restockProduct(product.id, qty)
                         }
                         productToRestock = null
                     },
