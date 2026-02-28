@@ -466,18 +466,22 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         db.child("stores").child(storeId).child("utang").child(key).setValue(newUtang)
     }
 
-    fun addToCart(product: Product) {
+    fun addToCart(product: Product): Boolean {
         val currentList = _cart.value.toMutableList()
         val existingIndex = currentList.indexOfFirst { it.product.id == product.id }
         if (existingIndex != -1) {
             val existing = currentList[existingIndex]
             if (existing.quantity < product.quantity) {
                 currentList[existingIndex] = existing.copy(quantity = existing.quantity + 1)
+                _cart.value = currentList
+                return true
             }
+            return false
         } else {
             currentList.add(CartItem(product, 1))
+            _cart.value = currentList
+            return true
         }
-        _cart.value = currentList
     }
 
     fun updateCartQuantity(product: Product, newQty: Int) {
@@ -541,6 +545,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         if (_userRole.value == UserRole.ASSISTANT) return
         val storeId = _currentStore.value?.id ?: return
         db.child("stores").child(storeId).child("products").child(p.id).setValue(p)
+    }
+
+    fun restockProduct(productId: String, additionalStock: Int) {
+        val storeId = _currentStore.value?.id ?: return
+        val productRef = db.child("stores").child(storeId).child("products").child(productId)
+        productRef.get().addOnSuccessListener { snapshot ->
+            val currentQty = snapshot.child("quantity").getValue(Int::class.java) ?: 0
+            val newQty = currentQty + additionalStock
+            productRef.child("quantity").setValue(newQty)
+            productRef.child("lastRestocked").setValue(System.currentTimeMillis())
+        }
     }
 
     fun populateDemoData() {
