@@ -463,7 +463,23 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val storeId = _currentStore.value?.id ?: return
         val key = db.child("stores").child(storeId).child("utang").push().key ?: return
         val newUtang = u.copy(id = key)
-        db.child("stores").child(storeId).child("utang").child(key).setValue(newUtang)
+
+        val transId = db.child("stores").child(storeId).child("utang_transactions").push().key ?: return
+
+        val initialTrans = UtangTransaction(
+            id = transId,
+            utangId = key,
+            amount = u.amount,
+            type = "BORROW",
+            processedBy = auth.currentUser?.displayName ?: "Unknown",
+            notes = "Initial debt"
+        )
+
+        val updates = hashMapOf<String, Any>(
+            "stores/$storeId/utang/$key" to newUtang,
+            "stores/$storeId/utang_transactions/$transId" to initialTrans
+        )
+        db.updateChildren(updates)
     }
 
     fun addToCart(product: Product): Boolean {
