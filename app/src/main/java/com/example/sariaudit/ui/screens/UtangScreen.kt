@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -25,6 +26,10 @@ import com.example.sariaudit.viewmodel.MainViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 
+enum class UtangSort {
+    NameAsc, NameDesc, DebtHighLow, DebtLowHigh
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UtangScreen(navController: NavController, viewModel: MainViewModel) {
@@ -34,11 +39,17 @@ fun UtangScreen(navController: NavController, viewModel: MainViewModel) {
     var showAddDialog by remember { mutableStateOf(false) }
     var selectedUtangForEdit by remember { mutableStateOf<Utang?>(null) }
     var searchQuery by remember { mutableStateOf("") }
+    var sortOption by remember { mutableStateOf(UtangSort.DebtHighLow) }
+    var sortMenuExpanded by remember { mutableStateOf(false) }
 
-    // Logic: Unpaid (amount > 0) at the top, Paid (amount <= 0) at the bottom
-    val unifiedList = utangList
-        .filter { it.customerName.contains(searchQuery, ignoreCase = true) }
-        .sortedWith(compareByDescending<Utang> { it.amount > 0.01 }.thenBy { it.customerName })
+    val filteredList = utangList.filter { it.customerName.contains(searchQuery, ignoreCase = true) }
+
+    val sortedList = when (sortOption) {
+        UtangSort.NameAsc -> filteredList.sortedBy { it.customerName.lowercase() }
+        UtangSort.NameDesc -> filteredList.sortedByDescending { it.customerName.lowercase() }
+        UtangSort.DebtHighLow -> filteredList.sortedByDescending { it.amount }
+        UtangSort.DebtLowHigh -> filteredList.sortedBy { it.amount }
+    }
 
     Scaffold(
         topBar = {
@@ -48,6 +59,35 @@ fun UtangScreen(navController: NavController, viewModel: MainViewModel) {
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.Default.ArrowBack, null, tint = Color.White)
+                    }
+                },
+                actions = {
+                    Box {
+                        IconButton(onClick = { sortMenuExpanded = true }) {
+                            Icon(Icons.AutoMirrored.Filled.Sort, contentDescription = "Sort", tint = Color.White)
+                        }
+                        DropdownMenu(
+                            expanded = sortMenuExpanded,
+                            onDismissRequest = { sortMenuExpanded = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Name (A-Z)") },
+                                onClick = { sortOption = UtangSort.NameAsc; sortMenuExpanded = false }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Name (Z-A)") },
+                                onClick = { sortOption = UtangSort.NameDesc; sortMenuExpanded = false }
+                            )
+                            Divider()
+                            DropdownMenuItem(
+                                text = { Text("Amount (High to Low)") },
+                                onClick = { sortOption = UtangSort.DebtHighLow; sortMenuExpanded = false }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Amount (Low to High)") },
+                                onClick = { sortOption = UtangSort.DebtLowHigh; sortMenuExpanded = false }
+                            )
+                        }
                     }
                 }
             )
@@ -70,7 +110,7 @@ fun UtangScreen(navController: NavController, viewModel: MainViewModel) {
             Spacer(Modifier.height(16.dp))
 
             LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                items(unifiedList) { item ->
+                items(sortedList) { item ->
                     UtangItem(item) { selectedUtangForEdit = item }
                 }
             }
