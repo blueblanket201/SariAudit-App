@@ -41,6 +41,7 @@ import com.patrykandpatrick.vico.compose.cartesian.rememberCartesianChart
 import com.patrykandpatrick.vico.core.cartesian.axis.HorizontalAxis
 import com.patrykandpatrick.vico.core.cartesian.axis.VerticalAxis
 import com.patrykandpatrick.vico.core.cartesian.data.CartesianChartModelProducer
+import com.patrykandpatrick.vico.core.cartesian.data.CartesianValueFormatter
 import com.patrykandpatrick.vico.core.cartesian.data.columnSeries
 import com.patrykandpatrick.vico.core.cartesian.data.lineSeries
 
@@ -534,24 +535,12 @@ fun WeeklyRevenueChart(
 
     LaunchedEffect(weeklySales, startDateMillis, endDateMillis) {
         val salesByDay = FloatArray(dayCount) { 0f }
-        val startCalendar = Calendar.getInstance().apply { timeInMillis = startDateMillis }
-        val startDayOfYear = startCalendar.get(Calendar.DAY_OF_YEAR)
-        val startYear = startCalendar.get(Calendar.YEAR)
 
         weeklySales.forEach { sale ->
-            val saleCalendar = Calendar.getInstance().apply { timeInMillis = sale.timestamp }
-            val saleYear = saleCalendar.get(Calendar.YEAR)
-            val saleDayOfYear = saleCalendar.get(Calendar.DAY_OF_YEAR)
+            val daysDiff = ((sale.timestamp - startDateMillis) / (24 * 60 * 60 * 1000)).toInt()
 
-            val dayIndex = if (saleYear == startYear) {
-                saleDayOfYear - startDayOfYear
-            } else {
-                val daysInStartYear = startCalendar.getActualMaximum(Calendar.DAY_OF_YEAR)
-                (daysInStartYear - startDayOfYear) + saleDayOfYear
-            }
-
-            if (dayIndex in 0 until dayCount) {
-                salesByDay[dayIndex] += sale.totalAmount.toFloat()
+            if (daysDiff in 0 until dayCount) {
+                salesByDay[daysDiff] += sale.totalAmount.toFloat()
             }
         }
 
@@ -562,11 +551,15 @@ fun WeeklyRevenueChart(
         }
     }
 
+    val dayIndexFormatter = CartesianValueFormatter { _, x, _ ->
+        (x.toInt() + 1).toString()
+    }
+
     CartesianChartHost(
         chart = rememberCartesianChart(
             rememberColumnCartesianLayer(),
             startAxis = VerticalAxis.rememberStart(),
-            bottomAxis = HorizontalAxis.rememberBottom(),
+            bottomAxis = HorizontalAxis.rememberBottom(valueFormatter = dayIndexFormatter),
         ),
         modelProducer = modelProducer,
         modifier = Modifier
@@ -601,11 +594,15 @@ fun HourlyRevenueChart(dailySales: List<Sale>) {
         }
     }
 
+    val hourIndexFormatter = CartesianValueFormatter { _, x, _ ->
+        (x.toInt() + 1).toString()
+    }
+
     CartesianChartHost(
         chart = rememberCartesianChart(
             rememberLineCartesianLayer(),
             startAxis = VerticalAxis.rememberStart(),
-            bottomAxis = HorizontalAxis.rememberBottom(),
+            bottomAxis = HorizontalAxis.rememberBottom(valueFormatter = hourIndexFormatter),
         ),
         modelProducer = modelProducer,
         modifier = Modifier.fillMaxWidth().height(200.dp)
