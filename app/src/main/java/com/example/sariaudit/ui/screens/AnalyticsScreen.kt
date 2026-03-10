@@ -1,9 +1,11 @@
 package com.example.sariaudit.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -11,8 +13,10 @@ import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.sariaudit.data.Sale
@@ -23,8 +27,27 @@ import com.example.sariaudit.ui.theme.TealGreen
 import com.example.sariaudit.viewmodel.MainViewModel
 import java.text.SimpleDateFormat
 import java.time.Instant
+import java.time.LocalDate
+import java.time.YearMonth
 import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.*
+
+// Vico Imports for 2.4.3
+import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
+import com.patrykandpatrick.vico.compose.cartesian.layer.rememberColumnCartesianLayer
+import com.patrykandpatrick.vico.compose.cartesian.layer.rememberLineCartesianLayer
+import com.patrykandpatrick.vico.compose.cartesian.rememberCartesianChart
+import com.patrykandpatrick.vico.core.cartesian.axis.HorizontalAxis
+import com.patrykandpatrick.vico.core.cartesian.axis.VerticalAxis
+import com.patrykandpatrick.vico.core.cartesian.data.CartesianChartModelProducer
+import com.patrykandpatrick.vico.core.cartesian.data.CartesianValueFormatter
+import com.patrykandpatrick.vico.core.cartesian.data.columnSeries
+import com.patrykandpatrick.vico.core.cartesian.data.lineSeries
+
+// FIXED: Explicitly importing the Compose extension functions for the axes
+import com.patrykandpatrick.vico.compose.cartesian.axis.rememberBottom
+import com.patrykandpatrick.vico.compose.cartesian.axis.rememberStart
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -82,7 +105,7 @@ fun AnalyticsScreen(navController: NavController, viewModel: MainViewModel) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DailyAnalyticsView(sales: List<Sale>) {
-    var selectedDateMillis by remember { mutableStateOf(System.currentTimeMillis()) }
+    var selectedDateMillis by remember { mutableLongStateOf(System.currentTimeMillis()) }
     var showDatePicker by remember { mutableStateOf(false) }
 
     val zoneId = ZoneId.systemDefault()
@@ -113,6 +136,24 @@ fun DailyAnalyticsView(sales: List<Sale>) {
                     MetricCard("Profit", "₱%.2f".format(totalProfit), Icons.Default.TrendingUp, TealGreen, Modifier.weight(1f))
                 }
             }
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    elevation = CardDefaults.cardElevation(2.dp)
+                ) {
+                    Column(Modifier.padding(16.dp)) {
+                        Text("Revenue vs Profit by Hour", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        if (filteredSales.isEmpty()) {
+                            Box(modifier = Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
+                                Text("No data for this day", color = Color.Gray)
+                            }
+                        } else {
+                            HourlyRevenueChart(dailySales = filteredSales)
+                        }
+                    }
+                }
+            }
             item { Text("Transactions", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold) }
             if (filteredSales.isEmpty()) {
                 item { Text("No data for this day.", color = Color.Gray) }
@@ -141,12 +182,10 @@ fun DailyAnalyticsView(sales: List<Sale>) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WeeklyAnalyticsView(sales: List<Sale>) {
-    // 1. State for the selected range (Default: Last 7 days)
-    var startDateMillis by remember { mutableStateOf(System.currentTimeMillis() - 6 * 24 * 60 * 60 * 1000L) }
-    var endDateMillis by remember { mutableStateOf(System.currentTimeMillis()) }
+    var startDateMillis by remember { mutableLongStateOf(System.currentTimeMillis() - 6 * 24 * 60 * 60 * 1000L) }
+    var endDateMillis by remember { mutableLongStateOf(System.currentTimeMillis()) }
     var showRangePicker by remember { mutableStateOf(false) }
 
-    // 2. Filter sales within the selected range
     val weeklySales = sales.filter { it.timestamp in startDateMillis..endDateMillis }
     val totalRevenue = weeklySales.sumOf { it.totalAmount }
     val totalProfit = weeklySales.sumOf { it.profit }
@@ -158,7 +197,6 @@ fun WeeklyAnalyticsView(sales: List<Sale>) {
     val rangeFormatter = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
 
     Column(Modifier.fillMaxSize().background(OffWhite)) {
-        // 3. Weekly Date Range Header
         Surface(color = Color.White, shadowElevation = 2.dp, modifier = Modifier.fillMaxWidth()) {
             Row(
                 Modifier.padding(16.dp),
@@ -203,6 +241,25 @@ fun WeeklyAnalyticsView(sales: List<Sale>) {
                 }
             }
 
+            // === VICO CHART INTEGRATION ===
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    elevation = CardDefaults.cardElevation(2.dp)
+                ) {
+                    Column(Modifier.padding(16.dp)) {
+                        Text("Revenue by Date", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        WeeklyRevenueChart(
+                            weeklySales = weeklySales,
+                            startDateMillis = startDateMillis,
+                            endDateMillis = endDateMillis
+                        )
+                    }
+                }
+            }
+            // ====================================
+
             item { Text("Top Selling Items", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold) }
 
             if (topProducts.isEmpty()) {
@@ -227,38 +284,199 @@ fun WeeklyAnalyticsView(sales: List<Sale>) {
         }
     }
 
-    // 4. Date Range Picker Dialog (Shows the 7-day span visually)
     if (showRangePicker) {
-        val dateRangePickerState = rememberDateRangePickerState(
-            initialSelectedStartDateMillis = startDateMillis,
-            initialSelectedEndDateMillis = endDateMillis
-        )
-
-        DatePickerDialog(
-            onDismissRequest = { showRangePicker = false },
-            confirmButton = {
-                TextButton(onClick = {
-                    val start = dateRangePickerState.selectedStartDateMillis
-                    val end = dateRangePickerState.selectedEndDateMillis
-                    if (start != null && end != null) {
-                        startDateMillis = start
-                        endDateMillis = end
-                        showRangePicker = false
-                    }
-                }) { Text("Confirm Range") }
+        CustomDateRangePicker(
+            startDateMillis = startDateMillis,
+            endDateMillis = endDateMillis,
+            onDateRangeSelected = { start, end ->
+                startDateMillis = start
+                endDateMillis = end
+                showRangePicker = false
             },
-            dismissButton = {
-                TextButton(onClick = { showRangePicker = false }) { Text("Cancel") }
-            }
-        ) {
-            DateRangePicker(
-                state = dateRangePickerState,
-                modifier = Modifier.weight(1f).padding(16.dp),
-                title = { Text("Select Audit Week", modifier = Modifier.padding(16.dp)) },
-                showModeToggle = false
-            )
-        }
+            onDismiss = { showRangePicker = false }
+        )
     }
+}
+
+@Composable
+fun CustomDateRangePicker(
+    startDateMillis: Long,
+    endDateMillis: Long,
+    onDateRangeSelected: (start: Long, end: Long) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var currentMonth by remember { mutableStateOf(YearMonth.now()) }
+    var tempStartDate by remember { mutableStateOf<Long?>(startDateMillis) }
+    var tempEndDate by remember { mutableStateOf<Long?>(endDateMillis) }
+
+    val dateFormatter = DateTimeFormatter.ofPattern("MMM dd, yyyy")
+    val monthYearFormatter = DateTimeFormatter.ofPattern("MMMM yyyy")
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Select Date Range") },
+        text = {
+            Column {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(onClick = { currentMonth = currentMonth.minusMonths(1) }) {
+                        Icon(Icons.Default.ChevronLeft, "Previous Month")
+                    }
+                    Text(
+                        text = currentMonth.format(monthYearFormatter),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    IconButton(onClick = { currentMonth = currentMonth.plusMonths(1) }) {
+                        Icon(Icons.Default.ChevronRight, "Next Month")
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    listOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat").forEach { day ->
+                        Text(
+                            text = day,
+                            modifier = Modifier.weight(1f),
+                            textAlign = TextAlign.Center,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color.Gray
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                val firstDayOfMonth = currentMonth.atDay(1)
+                val lastDayOfMonth = currentMonth.atEndOfMonth()
+                val firstDayOfWeek = firstDayOfMonth.dayOfWeek.value % 7
+
+                val days = buildList {
+                    repeat(firstDayOfWeek) { add(null) }
+                    for (day in 1..lastDayOfMonth.dayOfMonth) {
+                        add(day)
+                    }
+                }
+
+                Column {
+                    days.chunked(7).forEach { week ->
+                        Row(modifier = Modifier.fillMaxWidth()) {
+                            week.forEach { day ->
+                                if (day == null) {
+                                    Box(modifier = Modifier.weight(1f).height(36.dp))
+                                } else {
+                                    val date = currentMonth.atDay(day)
+                                    val dateMillis = date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+                                    val isSelected = (tempStartDate == dateMillis) || (tempEndDate == dateMillis)
+                                    val isInRange = tempStartDate != null && tempEndDate != null &&
+                                            dateMillis > tempStartDate!! && dateMillis < tempEndDate!!
+                                    val isStart = tempStartDate == dateMillis
+                                    val isEnd = tempEndDate == dateMillis
+
+                                    Box(
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .height(36.dp)
+                                            .clip(CircleShape)
+                                            .background(
+                                                when {
+                                                    isSelected -> DeepOrange
+                                                    isInRange -> DeepOrange.copy(alpha = 0.3f)
+                                                    else -> Color.Transparent
+                                                }
+                                            )
+                                            .clickable {
+                                                when {
+                                                    tempStartDate == null || (tempStartDate != null && tempEndDate != null) -> {
+                                                        tempStartDate = dateMillis
+                                                        tempEndDate = null
+                                                    }
+                                                    dateMillis < tempStartDate!! -> {
+                                                        tempStartDate = dateMillis
+                                                    }
+                                                    else -> {
+                                                        tempEndDate = dateMillis
+                                                    }
+                                                }
+                                            },
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(
+                                            text = day.toString(),
+                                            color = when {
+                                                isSelected -> Color.White
+                                                isInRange -> DeepOrange
+                                                else -> Color.Black
+                                            },
+                                            style = MaterialTheme.typography.bodySmall
+                                        )
+                                    }
+                                }
+                            }
+                            repeat(7 - week.size) {
+                                Box(modifier = Modifier.weight(1f).height(36.dp))
+                            }
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Column {
+                        Text("Start", style = MaterialTheme.typography.labelSmall, color = Color.Gray)
+                        Text(
+                            tempStartDate?.let {
+                                Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalDate().format(dateFormatter)
+                            } ?: "Select date",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = if (tempStartDate != null) DeepOrange else Color.Gray
+                        )
+                    }
+                    Column(horizontalAlignment = Alignment.End) {
+                        Text("End", style = MaterialTheme.typography.labelSmall, color = Color.Gray)
+                        Text(
+                            tempEndDate?.let {
+                                Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalDate().format(dateFormatter)
+                            } ?: "Select date",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = if (tempEndDate != null) DeepOrange else Color.Gray
+                        )
+                    }
+                }
+            }
+        },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            val start = tempStartDate
+                            val end = tempEndDate
+                            if (start != null && end != null) {
+                                val actualStart = minOf(start, end)
+                                val actualEnd = maxOf(start, end)
+                                onDateRangeSelected(actualStart, actualEnd)
+                            } else {
+                                onDismiss()
+                            }
+                        },
+                        enabled = tempStartDate != null && tempEndDate != null
+                    ) {
+                        Text("Apply")
+                    }
+                },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
 }
 
 @Composable
@@ -274,7 +492,6 @@ fun TransactionRow(sale: Sale, formatter: SimpleDateFormat) {
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Time Icon
             Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(end = 12.dp)) {
                 Text(
                     formatter.format(Date(sale.timestamp)),
@@ -284,13 +501,11 @@ fun TransactionRow(sale: Sale, formatter: SimpleDateFormat) {
                 )
             }
 
-            // Details
             Column(modifier = Modifier.weight(1f)) {
                 Text(sale.productName, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodyMedium)
                 Text("Qty: ${sale.quantitySold}", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
             }
 
-            // Amount
             Column(horizontalAlignment = Alignment.End) {
                 Text(
                     "+ ₱${sale.totalAmount}",
@@ -298,7 +513,6 @@ fun TransactionRow(sale: Sale, formatter: SimpleDateFormat) {
                     color = SuccessGreen,
                     style = MaterialTheme.typography.bodyMedium
                 )
-                // Optional: Show profit in small text
                 Text(
                     "(₱${sale.profit.toInt()} profit)",
                     style = MaterialTheme.typography.labelSmall,
@@ -309,3 +523,88 @@ fun TransactionRow(sale: Sale, formatter: SimpleDateFormat) {
     }
 }
 
+// === NEW VICO CHART COMPOSABLE (v2.4.3) ===
+@Composable
+fun WeeklyRevenueChart(
+    weeklySales: List<Sale>,
+    startDateMillis: Long,
+    endDateMillis: Long
+) {
+    val modelProducer = remember { CartesianChartModelProducer() }
+    val dayCount = ((endDateMillis - startDateMillis) / (24 * 60 * 60 * 1000)).toInt() + 1
+
+    LaunchedEffect(weeklySales, startDateMillis, endDateMillis) {
+        val salesByDay = FloatArray(dayCount) { 0f }
+
+        weeklySales.forEach { sale ->
+            val daysDiff = ((sale.timestamp - startDateMillis) / (24 * 60 * 60 * 1000)).toInt()
+
+            if (daysDiff in 0 until dayCount) {
+                salesByDay[daysDiff] += sale.totalAmount.toFloat()
+            }
+        }
+
+        modelProducer.runTransaction {
+            columnSeries {
+                series(salesByDay.toList())
+            }
+        }
+    }
+
+    val dayIndexFormatter = CartesianValueFormatter { _, x, _ ->
+        (x.toInt() + 1).toString()
+    }
+
+    CartesianChartHost(
+        chart = rememberCartesianChart(
+            rememberColumnCartesianLayer(),
+            startAxis = VerticalAxis.rememberStart(),
+            bottomAxis = HorizontalAxis.rememberBottom(valueFormatter = dayIndexFormatter),
+        ),
+        modelProducer = modelProducer,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(200.dp)
+            .padding(top = 16.dp)
+    )
+}
+
+@Composable
+fun HourlyRevenueChart(dailySales: List<Sale>) {
+    val modelProducer = remember { CartesianChartModelProducer() }
+
+    LaunchedEffect(dailySales) {
+        val hours = (0..23).toList()
+        val revenueData = hours.map { hour ->
+            dailySales.filter { sale ->
+                Calendar.getInstance().apply { timeInMillis = sale.timestamp }.get(Calendar.HOUR_OF_DAY) == hour
+            }.sumOf { it.totalAmount }.toFloat()
+        }
+        val profitData = hours.map { hour ->
+            dailySales.filter { sale ->
+                Calendar.getInstance().apply { timeInMillis = sale.timestamp }.get(Calendar.HOUR_OF_DAY) == hour
+            }.sumOf { it.profit }.toFloat()
+        }
+
+        modelProducer.runTransaction {
+            lineSeries {
+                series(revenueData)
+                series(profitData)
+            }
+        }
+    }
+
+    val hourIndexFormatter = CartesianValueFormatter { _, x, _ ->
+        (x.toInt() + 1).toString()
+    }
+
+    CartesianChartHost(
+        chart = rememberCartesianChart(
+            rememberLineCartesianLayer(),
+            startAxis = VerticalAxis.rememberStart(),
+            bottomAxis = HorizontalAxis.rememberBottom(valueFormatter = hourIndexFormatter),
+        ),
+        modelProducer = modelProducer,
+        modifier = Modifier.fillMaxWidth().height(200.dp)
+    )
+}

@@ -1,6 +1,7 @@
 package com.example.sariaudit.ui.screens
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -25,6 +26,11 @@ import com.example.sariaudit.data.Product
 import com.example.sariaudit.ui.theme.*
 import com.example.sariaudit.viewmodel.CartItem
 import com.example.sariaudit.viewmodel.MainViewModel
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,6 +41,8 @@ fun QuickSaleScreen(navController: NavController, viewModel: MainViewModel) {
 
     var searchQuery by remember { mutableStateOf("") }
     var showConfirmDialog by remember { mutableStateOf(false) }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
     val filteredProducts = products.filter { it.name.contains(searchQuery, ignoreCase = true) }
 
@@ -45,11 +53,12 @@ fun QuickSaleScreen(navController: NavController, viewModel: MainViewModel) {
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = TealGreen),
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, null, tint = Color.White)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, null, tint = Color.White)
                     }
                 }
             )
-        }
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
         Column(Modifier.padding(padding).fillMaxSize()) {
             OutlinedTextField(
@@ -68,7 +77,14 @@ fun QuickSaleScreen(navController: NavController, viewModel: MainViewModel) {
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 items(filteredProducts) { product ->
-                    ProductGridItem(product) { viewModel.addToCart(product) }
+                    ProductGridItem(product) {
+                        val success = viewModel.addToCart(product)
+                        if (!success) {
+                            scope.launch {
+                                snackbarHostState.showSnackbar("Cannot add more ${product.name}. Only ${product.quantity} in stock.")
+                            }
+                        }
+                    }
                 }
             }
 
@@ -77,7 +93,7 @@ fun QuickSaleScreen(navController: NavController, viewModel: MainViewModel) {
                 modifier = Modifier.fillMaxWidth().height(350.dp),
                 color = Color.White,
                 shadowElevation = 16.dp,
-                shape = androidx.compose.foundation.shape.RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
+                shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
             ) {
                 Column(Modifier.padding(16.dp)) {
                     Text("Cart (${cartItems.sumOf { it.quantity }})", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
@@ -88,7 +104,9 @@ fun QuickSaleScreen(navController: NavController, viewModel: MainViewModel) {
                             CartRowItem(
                                 item = item,
                                 onUpdateQty = { q -> viewModel.updateCartQuantity(item.product, q) },
-                                onRemove = { viewModel.removeFromCart(item.product) }
+                                onRemove = { viewModel.removeFromCart(item.product) },
+                                snackbarHostState = snackbarHostState,
+                                scope = scope
                             )
                         }
                     }
@@ -150,7 +168,10 @@ fun ProductGridItem(product: Product, onClick: () -> Unit) {
 }
 
 @Composable
-fun CartRowItem(item: CartItem, onUpdateQty: (Int) -> Unit, onRemove: () -> Unit) {
+fun CartRowItem(item: CartItem, onUpdateQty: (Int) -> Unit, onRemove: () -> Unit, snackbarHostState: SnackbarHostState? = null, scope: CoroutineScope? = null) {
+    // Keep a local state of the text so the user can easily clear and type
+    var qtyText by remember(item.quantity) { mutableStateOf(item.quantity.toString()) }
+
     Row(Modifier.fillMaxWidth().padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
         Column(Modifier.weight(1f)) {
             Text(item.product.name, fontWeight = FontWeight.Bold)
@@ -158,8 +179,38 @@ fun CartRowItem(item: CartItem, onUpdateQty: (Int) -> Unit, onRemove: () -> Unit
         }
         Row(verticalAlignment = Alignment.CenterVertically) {
             IconButton(onClick = { onUpdateQty(item.quantity - 1) }) { Icon(Icons.Default.Remove, null) }
-            Text("${item.quantity}", modifier = Modifier.padding(horizontal = 8.dp))
-            IconButton(onClick = { onUpdateQty(item.quantity + 1) }) { Icon(Icons.Default.Add, null) }
+
+            // Editable Quantity Field
+            BasicTextField(
+                value = qtyText,
+                onValueChange = { newValue ->
+                    if (newValue.isEmpty() || newValue.all { it.isDigit() }) {
+                        qtyText = newValue
+                        // Only update the cart when there's an actual number to commit
+                        val parsedQty = newValue.toIntOrNull()
+                        if (parsedQty != null && parsedQty > 0) {
+                            onUpdateQty(parsedQty)
+                        }
+                    }
+                },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Center),
+                modifier = Modifier
+                    .width(40.dp)
+                    .background(Color.LightGray.copy(alpha = 0.3f), shape = RoundedCornerShape(4.dp))
+                    .padding(vertical = 4.dp)
+            )
+
+            IconButton(onClick = { 
+                val newQty = item.quantity + 1
+                if (newQty > item.product.quantity) {
+                    scope?.launch {
+                        snackbarHostState?.showSnackbar("Cannot add more ${item.product.name}. Only ${item.product.quantity} in stock.")
+                    }
+                } else {
+                    onUpdateQty(newQty)
+                }
+            }) { Icon(Icons.Default.Add, null) }
             IconButton(onClick = onRemove) { Icon(Icons.Default.Delete, null, tint = ErrorRed) }
         }
     }

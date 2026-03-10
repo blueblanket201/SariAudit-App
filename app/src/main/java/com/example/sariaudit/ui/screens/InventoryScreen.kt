@@ -203,8 +203,7 @@ fun InventoryScreen(navController: NavController, viewModel: MainViewModel) {
                     onClick = {
                         val qty = quantityToAdd.toIntOrNull() ?: 0
                         if (qty > 0) {
-                            val updatedProduct = product.copy(quantity = product.quantity + qty)
-                            viewModel.updateProduct(updatedProduct)
+                            viewModel.restockProduct(product.id, qty)
                         }
                         productToRestock = null
                     },
@@ -291,25 +290,25 @@ fun ProductFormDialog(
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedTextField(
                         value = price,
-                        onValueChange = { price = it },
+                        onValueChange = { if (it.isEmpty() || (it.toDoubleOrNull() ?: -1.0) >= 0) price = it },
                         label = { Text("Sell Price") },
                         modifier = Modifier.weight(1f),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                         singleLine = true
                     )
                     OutlinedTextField(
                         value = cost,
-                        onValueChange = { cost = it },
+                        onValueChange = { if (it.isEmpty() || (it.toDoubleOrNull() ?: -1.0) >= 0) cost = it },
                         label = { Text("Cost") },
                         modifier = Modifier.weight(1f),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                         singleLine = true
                     )
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedTextField(
                         value = qty,
-                        onValueChange = { qty = it },
+                        onValueChange = { if (it.isEmpty() || (it.toIntOrNull() ?: -1) >= 0) qty = it },
                         label = { Text("Quantity") },
                         modifier = Modifier.weight(1f),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -317,7 +316,7 @@ fun ProductFormDialog(
                     )
                     OutlinedTextField(
                         value = threshold,
-                        onValueChange = { threshold = it },
+                        onValueChange = { if (it.isEmpty() || (it.toIntOrNull() ?: -1) >= 0) threshold = it },
                         label = { Text("Low Alert") },
                         modifier = Modifier.weight(1f),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),

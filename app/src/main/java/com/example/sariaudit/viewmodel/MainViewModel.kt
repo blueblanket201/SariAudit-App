@@ -429,7 +429,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     // --- BUSINESS ACTIONS ---
 
-    fun modifyUtangBalance(utang: Utang, amount: Double, isPayment: Boolean) {
+    // 🔴 UPDATED: Added the notes parameter with a default empty string
+    fun modifyUtangBalance(utang: Utang, amount: Double, isPayment: Boolean, notes: String = "") {
         val storeId = _currentStore.value?.id ?: return
         val newAmount = if (isPayment) utang.amount - amount else utang.amount + amount
 
@@ -440,12 +441,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         )
 
         val transId = db.child("stores").child(storeId).child("utang_transactions").push().key ?: return
+
+        // 🔴 UPDATED: Passing notes into UtangTransaction
         val trans = UtangTransaction(
             id = transId,
             utangId = utang.id,
             amount = amount,
             type = if (isPayment) "PAYMENT" else "BORROW",
-            processedBy = auth.currentUser?.displayName ?: "Unknown"
+            processedBy = auth.currentUser?.displayName ?: "Unknown",
+            notes = notes
         )
 
         val updates = hashMapOf<String, Any>(
@@ -459,21 +463,41 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val storeId = _currentStore.value?.id ?: return
         val key = db.child("stores").child(storeId).child("utang").push().key ?: return
         val newUtang = u.copy(id = key)
-        db.child("stores").child(storeId).child("utang").child(key).setValue(newUtang)
+
+        val transId = db.child("stores").child(storeId).child("utang_transactions").push().key ?: return
+
+        val initialTrans = UtangTransaction(
+            id = transId,
+            utangId = key,
+            amount = u.amount,
+            type = "BORROW",
+            processedBy = auth.currentUser?.displayName ?: "Unknown",
+            notes = "Initial debt"
+        )
+
+        val updates = hashMapOf<String, Any>(
+            "stores/$storeId/utang/$key" to newUtang,
+            "stores/$storeId/utang_transactions/$transId" to initialTrans
+        )
+        db.updateChildren(updates)
     }
 
-    fun addToCart(product: Product) {
+    fun addToCart(product: Product): Boolean {
         val currentList = _cart.value.toMutableList()
         val existingIndex = currentList.indexOfFirst { it.product.id == product.id }
         if (existingIndex != -1) {
             val existing = currentList[existingIndex]
             if (existing.quantity < product.quantity) {
                 currentList[existingIndex] = existing.copy(quantity = existing.quantity + 1)
+                _cart.value = currentList
+                return true
             }
+            return false
         } else {
             currentList.add(CartItem(product, 1))
+            _cart.value = currentList
+            return true
         }
-        _cart.value = currentList
     }
 
     fun updateCartQuantity(product: Product, newQty: Int) {
@@ -537,6 +561,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         if (_userRole.value == UserRole.ASSISTANT) return
         val storeId = _currentStore.value?.id ?: return
         db.child("stores").child(storeId).child("products").child(p.id).setValue(p)
+    }
+
+    fun restockProduct(productId: String, additionalStock: Int) {
+        val storeId = _currentStore.value?.id ?: return
+        val productRef = db.child("stores").child(storeId).child("products").child(productId)
+        productRef.get().addOnSuccessListener { snapshot ->
+            val currentQty = snapshot.child("quantity").getValue(Int::class.java) ?: 0
+            val newQty = currentQty + additionalStock
+            productRef.child("quantity").setValue(newQty)
+            productRef.child("lastRestocked").setValue(System.currentTimeMillis())
+        }
     }
 
     fun populateDemoData() {
